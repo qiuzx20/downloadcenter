@@ -1,0 +1,107 @@
+.dialog-confirm{
+	width: 340px;
+	margin: 200px auto;
+	background-color: #fff;
+    border: 1px solid #b2b2b2;
+    border-radius: 4px;
+
+	.dialog-hd{
+		position: relative;
+	    height: 56px;
+	    line-height: 56px;
+	    color: #474e5d;
+		
+		h2{
+			float: left;
+		    font-size: 18px;
+		    padding-left: 20px;
+		    font-weight: normal;
+		}
+
+		.close{
+			display: block;
+			position: absolute;
+			top: 12px;
+			right: 12px;
+			width: 24px;
+			height: 24px;
+			color: #a3afba;
+			font-family: Helvetica,STHeiti;
+			font-size: 27px;
+			line-height: 24px;
+			padding: 0;
+			text-align: center;
+			cursor: pointer;
+			&:hover{
+				color: #CB3139;
+			};
+		}
+	}
+
+	.dialog-bd{
+		min-height: 128px;
+		padding: 28px 20px 40px;
+
+		.pic{
+			float: left;
+			width: 40px;
+			height: 40px;
+			margin: 0 20px;
+			background-size: 40px 40px;
+			background-repeat: no-repeat;
+			background-position: center center;
+			background-image: url(images/warning.png);
+			&.error{
+				background-image: url(images/error.png);
+			}
+			&.question{
+				background-image: url(images/question.png);
+			}
+
+			&.succeed{
+				background-image: url(images/succeed.png);
+			}
+
+			&.warning{
+				background-image: url(images/warning.png);
+			}
+		}
+
+		.content {
+			margin-left: 20px;
+			line-height: 40px;
+			font-size: 20px;
+		}
+	}
+
+	.dialog-ft{
+		height: 60px;
+		padding: 8px 0;
+		background: #f6f6f6;
+		text-align: center;
+		font-size: 0;
+
+		.btn-create{
+			display: inline-block;
+		    padding: 5px 30px;
+		    font-size: 14px;  
+		    color: #fff;
+		    background: #3E94FE;
+		    border: 1px solid #3E94FE;
+		    border-radius: 2px;
+		    cursor: pointer;
+		    margin-right: 10px;
+		}
+
+		.btn-close{
+			display: inline-block;
+		    padding: 7px 30px;
+		    font-size: 14px;  
+		    color: #474e5d;
+		    background: #fff;
+		    border: 1px solid #cfcfcf;
+		    border-radius: 2px;
+		    cursor: pointer;
+		}
+	}	
+}

@@ -1,0 +1,83 @@
+.pagetool{
+	position: relative;
+    padding: 15px 20px;
+    color: #a5a5a5;
+    font-size: 12px;
+    .left {
+	    height: 26px;
+	    line-height: 26px;
+	}
+	.icon{
+	    background-position: center center;
+	    background-repeat: no-repeat;
+	    background-size: 8px 10px;
+	    cursor: pointer;
+	    display: inline-block;
+	    height: 26px;
+	    vertical-align: top;
+	    width: 26px;
+	    border: 1px solid #ededed;
+	}
+	.first-page{
+	    background-image: url("images/first_page.png");
+	}
+	.last-page{
+	    background-image: url("images/last_page.png");
+	}
+	.page-no{
+	    border-radius: 2px;
+	    cursor: pointer;
+	    display: inline-block;
+	    height: 26px;
+	    line-height: 26px;
+	    text-align: center;
+	    vertical-align: top;
+	    width: 26px;
+
+	    &.active {
+		    background-color: #0088ff;
+		    color: #fff;
+
+		    &:hover{
+			    color: #fff;
+			}
+		}
+
+		&:hover{
+		    color: #0088ff;
+		    text-decoration: underline;
+		}
+	}
+
+	.jump{
+	    margin: 0 10px 0 15px;
+	    vertical-align: top;
+	    width: 160px;
+	}
+
+	.page-index{
+	    border: 1px solid #0088ff;
+	    margin: 0 5px;
+	    text-align: center;
+	    width: 35px;
+	    height: 24px;
+	}
+
+	.button{
+	    background: #0088ff none repeat scroll 0 0;
+	    border-radius: 2px;
+	    color: #fff;
+	    cursor: pointer;
+	    margin-left: 5px;
+	    padding: 5px 10px;
+	    width: auto;
+	}
+
+	.right{
+	    height: 26px;
+	    line-height: 26px;
+	    position: absolute;
+	    right: 0;
+	    top: 0;
+	}
+}

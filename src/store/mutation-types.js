@@ -1,0 +1,10 @@
+export const INCREMENT = 'INCREMENT'
+export const GETSIDER = 'GETSIDER'
+export const SHOWMODAL = 'SHOWMODAL'
+export const CLOSEMODAL = 'CLOSEMODAL'
+export const CHOOSEMANAGER = 'CHOOSEMANAGER'
+export const ADDTOROLE = 'ADDTOROLE'
+export const SETUSER = 'SETUSER'
+export const CLEARUSER = 'CLEARUSER'
+export const QUERYLEVEL = 'QUERYLEVEL'
+
