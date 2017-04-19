@@ -7,7 +7,7 @@
 		<div class="dialog-bd plr-20 choosemanager clearfix">
 			<div class="mb-10" style="overflow:hidden"><div class="chooseleft tablearea">
 				<div class="mb-10 clearfix">
-					<inputcompt ref="username" :option="{class:'fl mr-10',style:'200px',placeholder:'请输入用户名/id'}"></inputcompt>
+					<inputcompt ref="username" :option="option1"></inputcompt>
 					<span class="btn btn-green fl" @click="query">查 询</span></div>
 				<table :class="{uerror:usererror}">
 					<thead><tr><th width="15%"><label><input type="checkbox" v-model="checkedA" @click="checkedAll" />全选</label></th><th width="55%">用户名</th><th width="30%">名称</th></tr></thead>
@@ -80,26 +80,12 @@ import {mapGetters} from 'vuex'
 
 const datalist=[{id:1,name:"test01"},{id:2,name:"test02"},{id:3,name:"test03"}]
 const pageinfo = {total: 1,pageSize: 5,pageIndex: 1}
-const option={option1:{
-	name:"敏感级别",
-	id:"level",
-	mustbe:true,
-	type:'',
-	tabindex:'',
-	placeholder:"请选择敏感级别",
-	unit:"",
-	errorText:'请选择',
-	tips:'请选择敏感级别',
-	dropindex:0,
-	list:[]
-}}
 
 export default {
 	name:"authormodal",
 	data(){
 		return {
-			option2:option.option2,
-			option3:option.option3,
+			option1:{class:'fl mr-10',style:'200px',placeholder:'请输入用户名/id'},
 			datalist:'',
 			pageinfo:pageinfo,
 			userName:'',

@@ -7,7 +7,7 @@
 		<div class="dialog-bd plr-20 choosemanager clearfix">
 			<div class="chooseleft tablearea">
 				<div class="mb-10 clearfix">
-					<inputcompt ref="usecnname" :option="{class:'fl mr-10',style:'200px',placeholder:'请输入用户名/id'}"></inputcompt>
+					<inputcompt ref="usecnname" :option="option1"></inputcompt>
 					<span class="btn btn-green fl" @click="query">查 询</span></div>
 				<table>
 					<thead><tr><th width="15%"><label><input type="checkbox" v-model="checkedA" @click="checkAll" />全选</label></th><th width="55%">用户id</th><th width="30%">用户名</th></tr></thead>
@@ -58,6 +58,7 @@ export default {
 		return {
 			datalist:'',
 			pageinfo:pageinfo,
+			option1:{class:'fl mr-10',style:'200px',placeholder:'请输入用户名/id'},
 			checkednames:[],
 			checkedA:0,
 			checkedB:0,

@@ -11,7 +11,7 @@
 		</div>
 		<div class="clearfix"><button class="btn btn-blue mr-10" @click="saveRole">保 存</button></div>
 		<div class="topcrumb mt-40"><h3 class="title fl">用户列表</h3><span class="fr">
-			<Inputcompt ref="usercname" :option="{class:'fl mr-10',style:'200px',placeholder:'请输入用户名/id'}" v-show="datalist"></Inputcompt>
+			<Inputcompt ref="usercname" :option="option4" v-show="datalist"></Inputcompt>
 					<span class="btn btn-green fl mr-10" @click="queryUser" v-show="datalist">查 询</span><a class="fl btn btn-green mr-10"  @click="addToRole">添加用户到该角色</a><a class="fl btn btn-green mr-10" @click="delUser" v-show="datalist">删除用户</a> </span></div>
 		<div class="tablearea mt-10">
 			<table class="clearfix">
@@ -83,6 +83,11 @@ const option = {
 		selectshowname:"role_name",
 		selectname:"role_id",
 		list:[]
+	},
+	option4:{
+		class:'fl mr-10',
+		style:'200px',
+		placeholder:'请输入用户名/id'
 	}
 }
 
@@ -96,6 +101,7 @@ export default {
 			option1:option.option1,
 			option2:option.option2,
 			option3:option.option3,
+			option4:option.option4,
 			pageinfo:pageinfo,
 			datalist:[],
 			checkednames:[],
