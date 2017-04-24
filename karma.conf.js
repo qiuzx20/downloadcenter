@@ -81,19 +81,20 @@ module.exports = function(config) {
                     pubwidget: path.join(__dirname, '/src/widget/'),
                     frame: path.join(__dirname, '/src/html/components/frame/'),
                     store: path.join(__dirname, '/src/store/'),
-                    lib: path.join(__dirname, '/lib/'),
-                    'jquery': 'jquery'
+                    lib: path.join(__dirname, '/lib/')
                 }
             },
             module: {
                 loaders: [{
                     test: /\.js$/,
-                    exclude: /node_modules/,
-                    loader: 'babel-loader'
+                    exclude: /(node_modules|bower_components)/,
+                    loader: 'babel-loader',
+                    query:{
+                        presets:['es2015']
+                    }
                 }, {
                     test: /\.vue$/,
-                    loader: 'vue-loader'，
-                    exclude: /node_modules/
+                    loader: 'vue-loader'
                 }, {
                     test: /\.less$/,
                     loader: 'style-loader!css-loader!less-loader',
@@ -107,7 +108,13 @@ module.exports = function(config) {
                     loader: 'url-loader',
                     exclude: /node_modules/
                 }]
-            }
+            },
+            plugins: [
+                new webpack.ProvidePlugin({
+                      $: "jquery",
+                      jQuery: "jquery"
+                })
+            ]
         },
         coverageReporter: {
             type: 'html',
@@ -116,5 +123,29 @@ module.exports = function(config) {
         webpackServer: {
             noInfo: true // prevent console spamming when running in Karma!
         }
+
+        /*,
+                plugins: {
+                    new webpack.LoaderOptionsPlugin({
+                        options: {
+                          vue: {
+                              loaders: {
+                                js: 'isparta-loader'
+                              }
+                            },
+                            isparta: {
+                                embedSource: true,
+                                noAutoWrap: true,
+                                // these babel options will be passed only to isparta and not to babel-loader
+                                babel: {
+                                    presets: ['es2015']
+                                }
+                            },
+                           babel: {
+                                presets: ['es2015']
+                            }
+                        }
+                    })
+                }*/
     })
 }

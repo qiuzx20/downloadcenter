@@ -5,7 +5,12 @@
 				<Selecter 
 					ref="pubtext"
 					:option="option" 
-					
+					:type="type || option && option.type" 
+					:tabindex="option && option.tabindex" 
+					:placeholder="option && option.placeholder" 
+					:unit="option && option.unit" 
+					:errorText="errorText || option && option.errorText" 
+					:tips="option && option.tips" 
 					@onTrigger="eventListener"
 				>
 				</Selecter>

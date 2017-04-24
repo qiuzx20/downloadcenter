@@ -44,11 +44,11 @@ export default {
 	},
 	directives:{
 		focus:{
-			update(val,{value}){
-				if(value){
-					el.focus
-				}
-			}
+			update(el,{value}){
+			 	if(value){
+			 		el.focus()
+			 	}
+			 }
 		}
 	},
 	props:['unit','placeholder','type','errorText','tips','tabindex'],

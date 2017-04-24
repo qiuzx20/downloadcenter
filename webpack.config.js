@@ -4,10 +4,12 @@ var path = require("path");
 
 module.exports = {
     entry: {
-        "index": __dirname + "/src/index.js",
+        "index": __dirname + "/src/index.js"/*,
+        "vendor":["jquery"]*/
     },
     output: {
         path: __dirname + "/dist/js/",
+        publicPath:"/dist/js/",
         filename: "[name].bundle.js"
     },
     resolve: {
@@ -21,8 +23,7 @@ module.exports = {
             pubwidget: path.join(__dirname, '/src/widget/'),
             frame: path.join(__dirname, '/src/html/components/frame/'),
             store: path.join(__dirname, '/src/store/'),
-            lib: path.join(__dirname, '/lib/'),
-            'jquery': 'jquery'
+            lib: path.join(__dirname, '/lib/')
         }
     },
     externals: {
@@ -61,6 +62,7 @@ module.exports = {
             inject: 'body',
             hash: true, //代表js文件后面会跟一个随机字符串,解决缓存问题
             chunks: ["index"]
+            //chunks: ["index","vendor"]
         }),
         new webpack.optimize.UglifyJsPlugin({
 	      output: {
@@ -68,16 +70,21 @@ module.exports = {
 	      },
 	      compress: {
 	        warnings: false
-	      }
+	      },
+          except:['$','require']
 	    }),
-	    new webpack.DefinePlugin({
+	    /*new webpack.DefinePlugin({
 	      'process.env': {
 	          NODE_ENV: JSON.stringify(process.env.NODE_ENV),
 	      },
-	    }),
+	    }),*/
         new webpack.ProvidePlugin({
               $: "jquery",
               jQuery: "jquery"
-          })
+        })/*,
+        new webpack.optimize.CommonsChunkPlugin({
+            name:'vendor',
+            filename:"vendor.jquery.js"
+        })*/
     ]
 }

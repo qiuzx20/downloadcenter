@@ -39,6 +39,15 @@ export default {
 			showTip:false
 		}
 	},
+	directives:{
+		focus:{
+			 update(el,{value}){
+			 	if(value){
+			 		el.focus()
+			 	}
+			 }
+		}
+	},
 	props:['unit','placeholder','type','errorText','tips','tabindex'],
 	methods:{
 		eventListener(type,params){

@@ -71,10 +71,7 @@ export default {
 					},
 				    callback:{
 				        onClick (event,treeId,treeNode,clickFlag){
-				        		//that.$refs.mysider.goupdata(treeNode)
-				        		//that.setUsernode(treeNode)
-				        		/*console.log(that.usernode);
-				        		console.log(treeNode);*/
+
 				        	}
 				    }
 			}
@@ -85,7 +82,7 @@ export default {
 			this.objtree.getCheckedNodes().forEach((item)=>{
 				menuarr.push(item.menu_id)
 			})
-			this.$http.post(window.apiUrl+"/menu/updatePrivilege",{roleId:this.option.roleid,menuIds:menuarr}).then((res)=>{
+			this.$http.post(window.apiUrl+"/menu/updatePrivilege",{roleId:this.option.roleid,menuIds:menuarr || ''}).then((res)=>{
 				this.closeHandler()
 				if(!res.data.code){
 					const timeidA = (new Date()).getTime()

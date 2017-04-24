@@ -37,7 +37,7 @@
 			</div>
 		</div>
 		<div class="dialog-ft">
-			<span class="btn btn-create mr-10" @click="okHandler">确定</span>
+			<span class="btn btn-create mr-10" @click="okHandler">{{option.ok.text || "确定"}}</span>
 			<span class="btn btn-close" @click="closeHandler">取消</span>
 		</div>
 	</div>
@@ -70,9 +70,6 @@ export default {
 	},
 	props:['id','option'],
 	methods:{
-		eventListener(type,params){
-			//this.$emit("onTrigger",type,params)
-		},
 		query(){
 			this.usecnname = this.$refs.usecnname.getData()
 			this.pageTo(1)
@@ -93,9 +90,14 @@ export default {
 			}
 			this.$store.dispatch("showModal",option)
 			this.$http.post(window.apiUrl+"/user/queryUserNotByRoleId",{roleId:this.$route.query.roleId,rows:this.pageinfo.pageSize,page:this.pageinfo.pageIndex,name:this.usecnname}).then((res)=>{
+				if(!res.data.code){
+					this.$store.dispatch("closeModal",timeid)
+					this.datalist = res.data.data.list
+					this.pageinfo.total = res.data.data.total
+				}else{
+					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
+				}
 				this.$store.dispatch("closeModal",timeid)
-				this.datalist = res.data.data.list
-				this.pageinfo.total = res.data.data.total
 			},(error)=>{
 				this.$store.dispatch("closeModal",timeid)
 				Utils.errorModal(error,DialogModal,this.$store)
@@ -139,7 +141,9 @@ export default {
 								text:"知道了",
 								callback(){
 									that.closeHandler()
-									that.refresh()
+									if (that.option.ok.callback) {
+										that.option.ok.callback()
+									}
 								}
 							}
 						}
@@ -172,19 +176,11 @@ export default {
 			}
 			this.checkednames = checkallname
 		},
-		refresh(){
-			this.$router.go(0)
-		},
 		closeHandler(){
 			this.$store.dispatch("closeModal",this.id)
 		},
 		okHandler(params){
 			this.saveUser()
-			/*this.$store.dispatch("addToRole",this.checkednames).then((resp)=>{
-				if(resp == "ok"){
-					this.closeHandler()
-				}
-			})	*/
 		}
 	},
 	components:{

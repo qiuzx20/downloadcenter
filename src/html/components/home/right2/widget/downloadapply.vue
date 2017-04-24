@@ -7,19 +7,19 @@
 		<div class="dialog-bd plr-20">
 				<ul class="ulform" v-if="!app_applyStatus">
 					<Seletcer ref="applycate" :option="option1" @onTrigger="eventListener"></Seletcer>
-					<Pubtext ref="time" :option="option2" @onTrigger="eventListener"></Pubtext>
-					<Pubtext ref="reason" :option="option3" @onTrigger="eventListener"></Pubtext>
-					<Seletcer ref="approver" v-if="option4.list && !option4.list.length":option="option4" @onTrigger="eventListener"></Seletcer>
+					<Pubtext ref="time" :option="option2" v-show="applyVal"></Pubtext>
+					<Pubtextarea ref="reason" :option="option3"></Pubtextarea>
+					<Seletcer ref="approver" v-show="option4.list" :option="option4" ></Seletcer>
 				</ul>
 				<ul class="ulform" v-else>
-					<Pubtext ref="passcode" :option="option5" @onTrigger="eventListener"></Pubtext>
-					<li class="clearfix"><div class="name fl">审批状态：</div> <div class="substance fl">{{logContent}}</div></li>
-					<li><button class="btn btn-small btn-primary ml-10" @click="queryJKStatusByID">查看审批状态</button><button class="btn btn-small btn-primary">重新获取口令</button></li>
+					<Pubtext ref="passcode" :option="option5"></Pubtext>
+					<li class="clearfix"><div class="name fl">审批状态：</div> <div class="substance fl blue-text" style="width:270px">{{logContent}}</div></li>
+					<li class="clearfix"><div class="name fl">&nbsp;</div><div class="substance fl"><button class="btn btn-small btn-primary mr-10" @click="queryJKStatusByID">查看审批状态</button><button class="btn btn-small btn-primary" @click="reSendJKPass">重新获取口令</button></div></li>
 				</ul>
 		</div>
 		<div class="dialog-ft">
 			<span class="btn btn-create mr-10" @click="okHandler">确定</span>
-			<span class="btn btn-close" @click="closeHandler()">取消</span>
+			<span class="btn btn-close" @click="closeHandler">取消</span>
 		</div>
 	</div>
 </template>
@@ -29,6 +29,7 @@ import Pubtext from 'widget/form/pubtext.vue'
 import Pubtextarea from 'widget/form/pubtextarea.vue'
 import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
 import DialogModal from 'pubwidget/dialog/dialog.vue'
+import Utils from 'lib/utils/utils'
 
 
 const option1 = {
@@ -96,6 +97,8 @@ export default {
 			option2:option2,
 			option3:option3,
 			option4:option4,
+			option5:option5,
+			applyVal:1,
 			app_requestID:'',
 			app_applyStatus:'',
 			g_requestID:'',
@@ -109,14 +112,37 @@ export default {
 	},
 	props:['option','id'],
 	methods:{
+		eventListener(type,param){
+			param && type == "clickHandler" && param.name == 1 ? (this.applyVal = 1) : (this.applyVal = 0)
+		},
 		loadStatus(){
 			this.$http.post(window.apiUrl+"/jkpReq/queryAppOperJKStatus",{
 				resNum:'DATASECMH',
 				level:this.option.sentivelevel
 			}).then((res)=>{
 				const approverArr = []
-				res.data.approverArr.length > 0 && res.data.approverArr.forEach((item)=>{
-					approverArr.push({name:item[0],showname:item[1]+"(电话:"+item[2]+")"})
+
+				if(!res.data.approver){
+					this.closeHandler()
+					const timeidA = (new Date()).getTime()
+					const optionA = {
+						Dialog:DialogModal,
+						timeid:timeidA,
+						option:{
+							type:"error",
+							title:"提示",
+							content:"状态信息为空！",
+							ok:{
+								text:"知道了"
+							}
+						}
+					}
+					this.$store.dispatch("showModal",optionA)
+					return
+				}
+				res.data.approver.forEach((item)=>{
+					const itemarr = item.split("G|T")
+					approverArr.push({name:itemarr[0],showname:itemarr[1]+"(电话:"+itemarr[2]+")"})
 				})
 				this.option4.list = approverArr
 
@@ -126,11 +152,9 @@ export default {
 
 				if(this.app_applyStatus){
 					if(this.app_applyStatus == "valid")this.downloadFile()
-					logContent="金库申请请求，请求Id："+this.app_requestID+"，审批状态："+stas[this.app_applyStatus]
+					this.logContent="金库申请请求，请求Id："+this.app_requestID+"，审批状态："+this.stas[this.app_applyStatus]
 				}
 				
-
-
 			},(error)=>{
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
@@ -139,17 +163,17 @@ export default {
 			if(!this.app_applyStatus){
 				if(!this.$refs.applycate.getData()){
 					this.$refs.applycate.type = "error"
-					this.$refs.applycate.focus()
 					return
 				}
-				if(!this.$refs.time.getData()){
+				if(!this.$refs.time.getData() && this.applyVal){
 					this.$refs.time.type = "error"
 					this.$refs.time.focus()
 					return
 				}
-				if(!this.$refs.reason.getData()){
-					this.$refs.reason.type = "error"
-					this.$refs.reason.focus()
+				if(!Utils.isNumber(this.$refs.time.getData()) && this.applyVal){
+					this.$refs.time.type = "error"
+					this.$refs.time.errorText = "请输入数字！"
+					this.$refs.time.focus()
 					return
 				}
 				if(!this.$refs.approver.getData()){
@@ -173,14 +197,14 @@ export default {
 				level:this.option.sentivelevel,
 				authMode:"remoteAuth",
 				appType:this.$refs.applycate.getData(),
-				duration:(this.$refs.applycate.getData() == 1 && this.$refs.time.getData() )|| '',
-				userTimes:(this.$refs.applycate.getData() == 2 && this.$refs.time.getData()) || '',
+				duration:this.$refs.applycate.getData() == 1 ? this.$refs.time.getData() : '',
+				userTimes:this.$refs.applycate.getData() == 2 ? 1 : '',
 				applyReason:this.$refs.reason.getData(),
 				selectedApprover:this.$refs.approver.getData()
 			}).then((res)=>{
 				this.app_applyStatus = res.data.applyStatus
 				this.g_requestID = res.data.requestID
-				this.logContent="金库申请请求，请求Id："+res.data.requestID+"，审批状态："+stas[res.data.applyStatus];
+				this.logContent="金库申请请求，请求Id："+res.data.requestID+"，审批状态："+this.stas[res.data.applyStatus];
 				
 			},(error)=>{
 				Utils.errorModal(error,DialogModal,this.$store)
@@ -210,25 +234,24 @@ export default {
 							}
 						}
 					this.$store.dispatch("showModal",optionA)
+					this.closeHandler()
 				}else{
 					Utils.errorModal({statusText:this.failReason[res.data.failReason],status:res.data.failReason},DialogModal,this.$store)
 				}
-				this.closeHandler()
 			},(error)=>{
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
 		},
 		downloadFile(){
-			window.open(window.apiUrl+"/wjxzPlatform/download?fileUserId="+this.option.fileId)
+			window.open(window.apiUrl+"/file/download?fileId="+this.option.fileId)
+			this.closeHandler()
 		},
 		queryJKStatusByID(){
 			this.$http.post(window.apiUrl+"/jkpReq/queryJKStatusByID",{
 				requestID:this.g_requestID,
 			}).then((res)=>{
-				if(stas[res.data.applyStatus]){
-					this.logContent="金库申请请求，请求Id："+res.data.requestID+"，审批状态："+stas[res.data.applyStatus];
-				}else{
-					Utils.errorModal({statusText:this.failReason[res.data.failReason],status:res.data.failReason},DialogModal,this.$store)
+				if(res.data.resultCode == "success"){
+					this.logContent="金库申请请求，请求Id："+res.data.requestID+"，审批状态："+this.stas[res.data.applyStatus];
 				}
 				
 			},(error)=>{
@@ -289,6 +312,11 @@ export default {
 		closeHandler(){
 			this.$store.dispatch("closeModal",this.id)
 		}
+	},
+	components:{
+		Seletcer,
+		Pubtext,
+		Pubtextarea
 	}
 
 }	

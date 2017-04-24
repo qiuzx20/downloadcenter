@@ -7,16 +7,16 @@
 		</div>
 		<div class="tablearea mt-10">
 			<table >
-			<thead><tr><th width="20%">文件编号</th><th width="20%">文件名</th><th width="10%">下载时间</th><th width="10%">大小（M）</th><th width="10%">下载用户</th><th width="10%">敏感级别</th><th width="10%">是否加水印</th><th width="10%">是否压缩加密</th></tr></thead>
+			<thead><tr><th width="25%">文件编号</th><th width="20%">文件名</th><th width="10%">下载时间</th><th width="8%">大小（M）</th><th width="10%">下载用户</th><th width="8%">敏感级别</th><th width="9%">是否加水印</th><th width="10%">是否压缩加密</th></tr></thead>
 			<tbody>
 				<tr v-for='item in datalist' :id="item.file_id">
-					<td width="20%">{{item.file_id}}</td>
-					<td width="20%">{{item.file_name}}</td>
+					<td width="25%">{{item.file_id}}</td>
+					<td width="20%" :title="item.file_name">{{item.file_name}}</td>
 					<td width="10%">{{item.download_time}}</td>
-					<td width="10%">{{item.file_size}}</td>
+					<td width="8%">{{item.file_size}}</td>
 					<td width="10%">{{item.usecnname}}</td>
-					<td width="10%">{{item.sentive_level}}</td>
-					<td width="10%">{{item.is_warter?"是":"否"}}</td>
+					<td width="8%">{{item.sentive_level}}</td>
+					<td width="9%">{{item.is_warter?"是":"否"}}</td>
 					<td width="10%">{{item.is_zip?"是":"否"}}</td>
 					
 				</tr>

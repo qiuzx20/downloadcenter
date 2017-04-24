@@ -52,12 +52,18 @@ export default {
 					sessionStorage.setItem("haslogin",true)
 					sessionStorage.setItem("token",_token)
 					this.$router.push({path:this.$route.query.redirect})
+					this.queryLevel()
 				},
 				(error)=>{
 					sessionStorage.setItem("haslogin",false)
 					console.log(error);
 			})
 			this.$store.dispatch("closeModal",timeid)
+		},
+		queryLevel(){
+			this.$store.dispatch("queryLevel").then((resolve)=>{
+				if(resolve != "ok" && resolve.data.code > 0)Utils.errorModal(resolve,DialogModal,this.$store)
+			})
 		}
 	},
 	components:{

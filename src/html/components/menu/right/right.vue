@@ -289,16 +289,34 @@ export default {
 		},
 		defaultVal(params){
 			this.$refs.parentid.setData(params.parentId)
+			params.parentId && (this.$refs.parentid.type = '')
+
 			this.$refs.menuid.setData(params.menuId)
+			params.menuId && (this.$refs.menuid.type = '')
+
 			this.$refs.menuname.setData(params.menuName)
+			params.menuName && (this.$refs.menuname.type = '')
+
 			this.$refs.managerref.setData(params.manager)
+			params.manager && (this.$refs.managerref.type = '')
+
 			this.leaf = params.menuType || 0
 			this.$refs.remark.setData(params.menuDesc)
+
 			this.$refs.ftpurl.setData(params.ftpUrl)
+			params.ftpUrl && (this.$refs.ftpurl.type = '')
+
 			this.$refs.ftpport.setData(params.ftpPort)
+			params.ftpPort && (this.$refs.ftpport.type = '')
+
 			this.$refs.ftppath.setData(params.ftpPath)
+			params.ftpPath && (this.$refs.ftppath.type = '')
+
 			this.$refs.ftpuser.setData(params.ftpUser)
+			params.ftpUser && (this.$refs.ftpuser.type = '')
+
 			this.$refs.ftppwd.setData(params.ftpPwd)
+			params.ftpPwd && (this.$refs.ftppwd.type = '')
 		},
 		checkForm(){
 			if(!this.$refs.menuid.getData()){
@@ -329,7 +347,7 @@ export default {
 					this.$refs.ftpurl.focus()
 					return
 				}
-				if(Utils.ipCheck(this.$refs.ftpurl.getData())){
+				if(!Utils.ipCheck(this.$refs.ftpurl.getData())){
 					this.$refs.ftpurl.type = "error"
 					this.$refs.ftpurl.errorText = "请输入正确的IP格式"
 					this.$refs.ftpurl.focus()

@@ -170,10 +170,42 @@ export default {
 			}
 			if(!this.files.length){
 				return
+			}else{
+				let i=0
+				const len = this.files.length
+				for(; i < len;i++){
+					if(!this.checkIsWater(this.files[i])){
+						return
+					}
+				}
 			}
+			
 			if(!this.$refs.level.getData()){
-				this.$refs.level.$refs.pubtext.type = "error"
+				this.$refs.level.type= "error"
 				return
+			}else{
+				this.$refs.level.type = ""
+			}
+			return true
+		},
+		checkIsWater(item){
+			if(this.iswater == '0') return true
+			if(item.file_size > 30 || item.file_line > 100000){
+					const timeidA = (new Date()).getTime()
+					const optionA = {
+						Dialog:DialogModal,
+						timeid:timeidA,
+						option:{
+							type:"error",
+							title:"提示",
+							content:item.file_name+(item.file_size > 30?"大小超过30M,":'')+(item.file_line > 100000?"记录条数超过十五条,":'')+"不能加水印！",
+							ok:{
+								text:"知道了"
+							}
+						}
+					}
+					this.$store.dispatch("showModal",optionA)
+				return false
 			}
 			return true
 		},
@@ -199,6 +231,7 @@ export default {
 			this.$http.post(window.apiUrl+"/file/fileauthorize",{fileids:filesarr,userids:usersarr,level:this.$refs.level.getData(),isZip:this.isscrect,isWarter:this.iswater}).then((res)=>{
 				if(!res.data.code){
 					this.closeHandler()
+					const that = this
 					const timeidA = (new Date()).getTime()
 					const optionA = {
 						Dialog:DialogModal,
@@ -208,7 +241,12 @@ export default {
 							title:"提示",
 							content:"保存成功！",
 							ok:{
-								text:"知道了"
+								text:"知道了",
+								callback(){
+									if (that.option.ok.callback) {
+										that.option.ok.callback()
+									}
+								}
 							}
 						}
 					}
@@ -228,11 +266,6 @@ export default {
 		},
 		okHandler(params){
 			this.saveAuth()
-			/*this.$store.dispatch("addToRole",this.checkednames).then((resp)=>{
-				if(resp == "ok"){
-					this.closeHandler()
-				}
-			})	*/
 		}
 	},
 	components:{

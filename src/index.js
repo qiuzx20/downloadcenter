@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
 import Vuex from 'vuex' 
-import $ from 'jquery'
+
 import store from './store/index'
 
 import App from 'root/app.vue'
@@ -22,10 +22,12 @@ Vue.use(Vuex)
 Vue.use(VueResource)
 Vue.http.options.emulateJSON = true
 
-
 const routes = [{
 	path:'/',
-	component:Home
+	component:Home,
+	meta:{
+		requireAuth:true
+	}
 },{
 	path:'/home',
 	component:Home,

@@ -1,7 +1,7 @@
 <template>
 	<div class="">
 		<div class="navbar">
-			<selectbar ref="level" :option='selectsetter' style="width:180px"></selectbar>
+			<selectbar ref="level" :option='levellist' style="width:180px"></selectbar>
 			<selectbar ref="water" :option='watersetter' style="width:180px"></selectbar>
 			<selectbar ref="zip" :option='zipsetter' style="width:180px"></selectbar>
 			
@@ -14,7 +14,7 @@
 			<tbody>
 				<tr v-for='item in datalist' :id="item.file_id">
 					<td width="20%">{{item.file_id}}</td>
-					<td width="12%">{{item.file_name}}</td>
+					<td width="12%" :title="item.file_name">{{item.file_name}}</td>
 					<td width="12%">{{item.update_time}}</td>
 					<td width="10%">{{item.file_size}}</td>
 					<td width="8%">{{item.file_line}}</td>
@@ -30,6 +30,7 @@
 	</div>
 </template>
 <script>
+import {mapGetters} from 'vuex'
 import selectbar from 'pubwidget/form/select/select.vue'
 import inputcompt from 'widget/form/input/input.vue'
 import Downloadapply from './widget/downloadapply.vue'
@@ -40,7 +41,6 @@ import Utils from 'lib/utils/utils'
 
 const pageinfo = {total: 2,pageSize: 9,pageIndex: 1}
 const inputsetter = {id:"filename",name:"输入文件名",type:"",class:"fl mr-10",placeholder:"输入文件名",style:"width:200px"}
-const selectsetter = {placeholder:"请选择敏感级别",list:[{name:-1,showname:'全部'},{name:1,showname:'一级'},{name:2,showname:'二级'},{name:3,showname:'三级'}]}
 const watersetter = {placeholder:"是否加水印",list:[{name:-1,showname:'全部'},{name:1,showname:'加水印'},{name:0,showname:'不加水印'}]}
 const zipsetter = {placeholder:"是否压缩加密",list:[{name:-1,showname:'全部'},{name:1,showname:'压缩加密'},{name:0,showname:'不压缩加密'}]}
 
@@ -49,7 +49,6 @@ export default {
 	name:"fileslist",
 	data(){
 		return {
-			selectsetter:selectsetter,
 			watersetter:watersetter,
 			zipsetter:zipsetter,
 			inputsetter:inputsetter,
@@ -63,6 +62,14 @@ export default {
 	},
 	created(){
 		this.getFilesList()
+	},
+	computed:{
+		...mapGetters(['getLevel']),
+		levellist(){
+			let selectsetter = {placeholder:"请选择敏感级别",list:[{name:-1,showname:'全部'}]}
+			selectsetter.list = selectsetter.list.concat(this.getLevel)
+			return selectsetter
+		}
 	},
 	watch:{
 		'$route':function(val,oldval){
@@ -81,7 +88,7 @@ export default {
 				result = '准备下载'
 				break
 				case 1:
-				result = '准备成功'
+				result = '下载文件'
 				break
 				case 2:
 				result = '准备失败'
@@ -185,7 +192,7 @@ export default {
 					fileId:item.file_id
 				}
 			}
-			this.$store.disaptch("showModal",option)
+			this.$store.dispatch("showModal",option)
 		},
 		downloadfileHandler(item){
 			if(item.sentive_level < 3){

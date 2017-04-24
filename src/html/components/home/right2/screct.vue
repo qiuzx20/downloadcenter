@@ -7,13 +7,13 @@
 		</div>
 		<div class="tablearea mt-10">
 			<table >
-			<thead><tr><th width="20%">文件编号</th><th width="20%">文件名</th><th width="20%">所属用户</th><th width="20%">加密密码</th><th width="20%">操作</th></tr></thead>
+			<thead><tr><th width="30%">文件编号</th><th width="20%">文件名</th><th width="10%">所属用户</th><th width="20%">加密密码</th><th width="20%">操作</th></tr></thead>
 			<tbody>
 				<tr v-for='item in datalist' :id="item.file_id">
-					<td width="20%">{{item.file_id}}</td>
-					<td width="20%">{{item.file_name}}</td>
+					<td width="30%">{{item.file_id}}</td>
+					<td width="20%" :title="item.file_name">{{item.file_name}}</td>
 					
-					<td width="20%">{{item.usecnname}}</td>
+					<td width="10%">{{item.usecnname}}</td>
 					<td width="20%">{{item.file_password}}</td>
 					<td width="20%"><button class="btn btn-small btn-primary" @click="sendscrect(item)">发送密码</button></td>
 

@@ -10,10 +10,10 @@
 			</ul>
 		</div>
 		<div class="clearfix"><button class="btn btn-blue mr-10" @click="saveRole">保 存</button></div>
-		<div class="topcrumb mt-40"><h3 class="title fl">用户列表</h3><span class="fr">
+		<div class="topcrumb mt-40" v-if="!isadd"><h3 class="title fl">用户列表</h3><span class="fr">
 			<Inputcompt ref="usercname" :option="option4" v-show="datalist"></Inputcompt>
 					<span class="btn btn-green fl mr-10" @click="queryUser" v-show="datalist">查 询</span><a class="fl btn btn-green mr-10"  @click="addToRole">添加用户到该角色</a><a class="fl btn btn-green mr-10" @click="delUser" v-show="datalist">删除用户</a> </span></div>
-		<div class="tablearea mt-10">
+		<div class="tablearea mt-10" v-if="!isadd">
 			<table class="clearfix">
 			<thead><tr><th width="6%"><label><input type="checkbox" @click="checkAll" v-model="checkall"/>全选</label></th><th width="20%">用户id</th><th width="10%">用户名</th><th width="10%">角色名称</th><th width="10%">手机号码</th><th width="14%">邮箱</th><th width="30%">备注</th></tr></thead>
 			<tbody>
@@ -352,11 +352,7 @@ export default {
 				this.$store.dispatch("showModal",optionA)
 				return
 			}
-			let namearr = []
-			this.checkednames.forEach((item)=>{
-				namearr.push(item.username)
-			})
-			this.$http.post(window.apiUrl+"/user/deleteUser",{roleId:this.$route.query.roleId,userIds:namearr}).then((res)=>{
+			this.$http.post(window.apiUrl+"/user/deleteUser",{roleId:this.$route.query.roleId,userIds:this.checkednames}).then((res)=>{
 				if(!res.data.code){
 					const that = this
 					const timeidB = (new Date()).getTime()
@@ -396,12 +392,18 @@ export default {
 			this.$store.dispatch("showModal",option)
 		},
 		addToRole(){
+			const that = this
 			const timeid = (new Date()).getTime()
 			const option = {
 				Dialog:Addtorole,
 				timeid:timeid,
 				option:{
-					title:"添加用户到该角色"
+					title:"添加用户到该角色",
+					ok:{
+						callback(){
+							that.pageTo(1)
+						}
+					}
 				}
 			}
 			this.$store.dispatch("showModal",option)

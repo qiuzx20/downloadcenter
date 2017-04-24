@@ -22,8 +22,7 @@ module.exports = {
             pubwidget: path.join(__dirname, '/src/widget/'),
             frame: path.join(__dirname, '/src/html/components/frame/'),
             store: path.join(__dirname, '/src/store/'),
-            lib: path.join(__dirname, '/lib/'),
-            'jquery': 'jquery'
+            lib: path.join(__dirname, '/lib/')
         }
     },
     module: {
@@ -61,9 +60,18 @@ module.exports = {
             hash: true, //代表js文件后面会跟一个随机字符串,解决缓存问题
             chunks: ["index"]
         }),
+        new webpack.optimize.UglifyJsPlugin({
+          output: {
+            comments: false,
+          },
+          compress: {
+            warnings: false
+          },
+          except:['$','require','jQuery']
+        }),
         new webpack.ProvidePlugin({
               $: "jquery",
               jQuery: "jquery"
-          })
+        })
     ]
 }

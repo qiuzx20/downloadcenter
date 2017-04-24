@@ -17,7 +17,7 @@
 				<tr v-for='item in datalist' :id="item.file_id">
 					<td width="6%"><input type="checkbox" :id="item.file_id + 'item'" v-model="checknames" :value="item"/></td>
 					<td width="10%">{{item.file_id}}</td>
-					<td width="10%">{{item.file_name}}</td>
+					<td width="10%" :title="item.file_name">{{item.file_name}}</td>
 					<td width="10%">{{item.update_time}}</td>
 					<td width="5%">{{!item.auth_status?"未授权":"已授权"}}</td>
 					<td width="7%">{{item.file_size}}</td>
@@ -71,9 +71,6 @@ export default {
 			isAuth:-1
 		}
 	},
-	created(){
-		this.queryLevel()
-	},
 	computed:{
 		...mapGetters(['getLevel']),
 		levellist(){
@@ -115,11 +112,6 @@ export default {
 			}
 			return result
 
-		},
-		queryLevel(){
-			this.$store.dispatch("queryLevel").then((resolve)=>{
-				if(resolve != "ok" && resolve.data.code > 0)Utils.errorModal(resolve,DialogModal,this.$store)
-			})
 		},
 		query(){
 			this.level = this.$refs.level.getData() === '' ? this.level : this.$refs.level.getData()
@@ -199,6 +191,7 @@ export default {
 		},
 		authorization(params){
 			let temp=[]
+			const that = this
 			if(typeof params =="string" && params == "all") {
 				if(!this.checknames.length){
 					const timeidA = (new Date()).getTime()
@@ -227,7 +220,12 @@ export default {
 				timeid:timeid,
 				option:{
 					title:"授权",
-					params:temp
+					params:temp,
+					ok:{
+						callback(){
+							that.pageTo(1)	
+						}
+					}
 				}
 			}
 			this.$store.dispatch("showModal",option)

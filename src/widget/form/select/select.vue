@@ -1,7 +1,21 @@
 <template>
-			<div :class="[chooseclasses,{error:type}]" >
-				<input ref="selectlabel" type="text" :placeholder="option && option.placeholder ?option.placeholder:'请选择'"  @focus="focusInput" @blur="blurInput" v-model="showname" @change="inputChange" lazy/>
-
+			<div :class="[chooseclasses,{error:type && !name}]">
+				<input ref="selectlabel" 
+				type="text" 
+				:placeholder="option && option.placeholder ?option.placeholder:'请选择'" 
+				@focus="focusInput" 
+				@blur="blurInput" 
+				v-model="showname" 
+				@change="inputChange" lazy/>
+				<span class="unit">{{unit || ' '}}</span>
+				<em class="tipicon"></em>
+				<span class="tiptext mt-5">{{errorText || '输入有误'}}</span>
+				<div :class='showTip?"tips-input":"hide"'>
+					<span class="tip-text">
+						{{tips || ' '}}
+					</span>
+					<em><i></i></em>
+				</div>
 				<ul class="chosen-result" @wheel="mouseWheel" @mouseover="mouseOver" @mouseout="mouseOut">
 					<li v-for="item in option.list" class="active-result" @click="clickHandler(item)">{{item.showname}}</li>
 					<Scroll ref = "selfScroll" />
@@ -20,11 +34,11 @@ export default {
 			showlist:'',
 			name:'',
 			showul: false,
-			canBlur:true,
-			type:''
+			showTip:false,
+			canBlur:true
 		}
 	},
-	props:['option'],
+	props:['option','unit','placeholder','errorText','type','tips','tabindex'],
 	computed:{
 		chooseclasses:function(){
 			if(this.showul){
@@ -32,9 +46,6 @@ export default {
 			}
 			return "chosen-container input"
 		}
-	},
-	created(){
-		//this.showlist=[{id:33,name:"系统管理员"},{id:44,name:"普通角色"}]
 	},
 	mounted(){
 		if(this.option.dropindex){
@@ -45,8 +56,8 @@ export default {
 	methods:{
 		focusInput(){
 			this.canBlur = true;
-			this.showlist =this.option.list,
-			this.showul=true
+			this.showlist = this.option.list,
+			this.showul = true
 		},
 		focus(){
 			this.$refs.selectlabel.focus()
@@ -54,10 +65,10 @@ export default {
 		blurInput(){
 			setTimeout(()=>{
 				if (this.canBlur) {
-						this.showul=false,
-						this.showname=this.showname
+					this.showul = false,
+					this.showname = this.showname
 				}
-			}, 100);
+			}, 150);
 		},
 		setData(val){
 			this.showname=val.showname
@@ -90,7 +101,8 @@ export default {
 		clickHandler(item){
 			this.showname = item.showname
 			this.name = item.name
-			this.showul = false;
+			this.showul = false
+			this.$emit("onTrigger","clickHandler",item)
 		}
 	},
 	components:{
