@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "karma start",
-    "build": "webpack --progress --colors --watch",
+    "build": "webpack --progress -p --colors --watch",
     "start-dev": "webpack-dev-server  --watch --progress --colors --hot --inline --port 3003 --config webpack.config.dev.js"
   },
   "repository": {
@@ -36,9 +36,10 @@
     "babel-register": "^6.0.0",
     "babel-runtime": "^5.8.38",
     "connect-history-api-fallback": "^1.1.0",
+    "cross-env": "^4.0.0",
     "css-loader": "^0.27.3",
     "express": "^4.13.3",
-    "extract-text-webpack-plugin": "^1.0.1",
+    "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^0.9.0",
     "function-bind": "^1.0.2",
     "html-webpack-plugin": "^2.28.0",

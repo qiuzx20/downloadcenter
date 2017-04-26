@@ -18,6 +18,7 @@ export default {
 	},
 	methods:{
 		login(){
+
 			if(!this.$route.query.token && !sessionStorage.getItem("token")){ 
 				const timeidA = (new Date()).getTime()
 				const optionA = {
@@ -48,15 +49,19 @@ export default {
 
 			const _token = this.$route.query.token || sessionStorage.getItem("token")
 			this.$http.post(window.apiUrl + "/login/ssologin",{token:_token}).then((res)=>{
-					this.$store.dispatch("setUser",res.data.data)
-					sessionStorage.setItem("haslogin",true)
-					sessionStorage.setItem("token",_token)
-					this.$router.push({path:this.$route.query.redirect})
-					this.queryLevel()
+					if(!res.data.code){
+						this.$store.dispatch("setUser",res.data.data)
+						sessionStorage.setItem("haslogin",true)
+						sessionStorage.setItem("token",_token)
+						this.$router.push({path:this.$route.query.redirect})
+						this.queryLevel()
+					}else{
+						Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
+					}
 				},
 				(error)=>{
 					sessionStorage.setItem("haslogin",false)
-					console.log(error);
+					Utils.errorModal(error,DialogModal,this.$store)
 			})
 			this.$store.dispatch("closeModal",timeid)
 		},

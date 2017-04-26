@@ -53,7 +53,18 @@ export default {
 				    }
 			}
 			this.setting = setting
+			const timeid = (new Date()).getTime()
+			const option = {
+				Dialog:LoadDialog,
+				timeid:timeid,
+				option:{
+					type:"loading",
+					text:"正在加载数据..."
+				}
+			}
+			this.$store.dispatch("showModal",option)
 			this.$http.get(window.apiUrl+"/role/queryAllRole").then((res)=>{
+				this.$store.dispatch("closeModal",timeid)
 				if(!res.data.code){
 					this.userlist = res.data.data
 				}else{

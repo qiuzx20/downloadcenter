@@ -25,6 +25,7 @@ module.exports = {
             lib: path.join(__dirname, '/lib/')
         }
     },
+    devtool:'source-map',
     module: {
         loaders: [{
             test: /\.js?$/,
@@ -59,15 +60,6 @@ module.exports = {
             inject: 'body',
             hash: true, //代表js文件后面会跟一个随机字符串,解决缓存问题
             chunks: ["index"]
-        }),
-        new webpack.optimize.UglifyJsPlugin({
-          output: {
-            comments: false,
-          },
-          compress: {
-            warnings: false
-          },
-          except:['$','require','jQuery']
         }),
         new webpack.ProvidePlugin({
               $: "jquery",

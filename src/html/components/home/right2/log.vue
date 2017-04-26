@@ -33,7 +33,7 @@ import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
 import Utils from 'lib/utils/utils'
 import DialogModal from 'pubwidget/dialog/dialog.vue'
 
-const usersetter = {id:"filename",name:"输入下载用户",type:"",class:"fl mr-10",placeholder:"输入用户名",style:"width:200px"}
+const usersetter = {id:"filename",name:"输入下载用户",type:"",class:"fl mr-10",placeholder:"输入下载用户",style:"width:200px"}
 const filessetter = {id:"filename",name:"输入文件名",type:"",class:"fl mr-10",placeholder:"输入文件名",style:"width:200px"}
 
 
@@ -84,7 +84,7 @@ export default {
 				}
 			}
 			this.$store.dispatch("showModal",option)
-			this.$http.post(window.apiUrl+"/file/downloglist",{pageSize:this.pageinfo.pageSize,pageNumber:this.pageinfo.pageIndex,menuId:this.$route.query.menuId,fileName:this.fileName,userName:this.userName}).then((res)=>{
+			this.$http.post(window.apiUrl+"/file/downloglist",{pageSize:this.pageinfo.pageSize,pageNumber:this.pageinfo.pageIndex,menuId:this.$route.query.menuId,fileName:this.fileName,usecnname:this.userName}).then((res)=>{
 				this.$store.dispatch("closeModal",timeid)
 				this.datalist = res.data.list
 				this.pageinfo.total = res.data.total

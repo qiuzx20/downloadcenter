@@ -1,6 +1,7 @@
 var HtmlWebpackPlugin = require("html-webpack-plugin");
 var webpack = require("webpack");
 var path = require("path");
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
     entry: {
@@ -8,9 +9,9 @@ module.exports = {
         "vendor":["jquery"]*/
     },
     output: {
-        path: __dirname + "/dist/js/",
-        publicPath:"/dist/js/",
-        filename: "[name].bundle.js"
+        path:path.join(__dirname , "./dist/") ,
+        publicPath:"/dist/",
+        filename: "js/[name].bundle.js"
     },
     resolve: {
          alias: {
@@ -40,18 +41,27 @@ module.exports = {
             exclude: /node_modules/
         }, {
             test: /\.less$/,
-            loader: 'style-loader!css-loader!less-loader',
+            //loader: 'style-loader!css-loader!less-loader',
+            use: ExtractTextPlugin.extract({
+                  fallback: "style-loader",
+                  use: ['css-loader', 'less-loader']
+                }),
             exclude: /node_modules/
         }, {
             test: /\.css$/,
-            loader: 'style-loader!css-loader',
+            //loader: 'style-loader!css-loader',
+            use: ExtractTextPlugin.extract({
+                  fallback: "style-loader",
+                  use: "css-loader"
+                }),
             exclude: /node_modules/
         }, {
             test: /\.(png|jpg|gif)$/,
             loader: 'url-loader',
             exclude: /node_modules/,
             query: {
-                limit: 8192
+                limit: 8192,
+                name:'images/[hash].[ext]'
             }
         }]
     },
@@ -64,20 +74,23 @@ module.exports = {
             chunks: ["index"]
             //chunks: ["index","vendor"]
         }),
+        /*new webpack.DefinePlugin({
+            'process.env': {
+                'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+            }
+        }),*/
         new webpack.optimize.UglifyJsPlugin({
 	      output: {
 	        comments: false,
 	      },
 	      compress: {
-	        warnings: false
+	        warnings: false,
+            drop_debugger: true,
+            drop_console: true
 	      },
           except:['$','require']
 	    }),
-	    /*new webpack.DefinePlugin({
-	      'process.env': {
-	          NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-	      },
-	    }),*/
+        new ExtractTextPlugin("css/css.css"),
         new webpack.ProvidePlugin({
               $: "jquery",
               jQuery: "jquery"

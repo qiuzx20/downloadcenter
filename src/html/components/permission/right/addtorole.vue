@@ -66,6 +66,7 @@ export default {
 		}
 	},
 	created(){
+		this.pageinfo.total = 0
 		this.getuser()
 	},
 	props:['id','option'],

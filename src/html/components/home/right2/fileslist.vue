@@ -162,8 +162,8 @@ export default {
 						}
 					}
 					this.$store.dispatch("showModal",optionA)
-				event.target.innerHTML="立即下载"
-				event.target.disabled=false
+					event.target.innerHTML="立即下载"
+					event.target.disabled=false
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 					if(res.data.code == 2){
@@ -195,19 +195,17 @@ export default {
 			this.$store.dispatch("showModal",option)
 		},
 		downloadfileHandler(item){
-			if(item.sentive_level < 3){
-				if(item.file_status == 1){
+			if(item.file_status == 1){
+				if(item.sentive_level < 3){
 					this.downloadFile(item.file_id)
 				}else{
-					this.createFile(item.file_id)
+					this.loadApply(item)
 				}
+					
 			}else{
-				this.loadApply(item)
+				this.createFile(item.file_id)
 			}
-			/*console.log(event);
-			event.target.innerHTML="下载准备中..."
-			event.target.disabled=true
-			console.log(id);*/
+			
 		}
 	},
 	components:{

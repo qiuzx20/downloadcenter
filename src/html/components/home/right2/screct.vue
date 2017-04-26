@@ -87,7 +87,7 @@ export default {
 				}
 			}
 			this.$store.dispatch("showModal",option)
-			this.$http.post(window.apiUrl+"/file/filepwdlist",{pageSize:this.pageinfo.pageSize,pageNumber:this.pageinfo.pageIndex,menuId:this.$route.query.menuId,fileName:this.fileName,userName:this.userName}).then((res)=>{
+			this.$http.post(window.apiUrl+"/file/filepwdlist",{pageSize:this.pageinfo.pageSize,pageNumber:this.pageinfo.pageIndex,menuId:this.$route.query.menuId,fileName:this.fileName,usecnname:this.userName}).then((res)=>{
 				this.$store.dispatch("closeModal",timeid)
 				this.datalist = res.data.list
 				this.pageinfo.total = res.data.total

@@ -15,8 +15,6 @@ import NotFound from 'frame/404.vue'
 import 'cssfiles/base.css'
 import 'cssfiles/common.less'
 
-
-
 Vue.use(VueRouter)
 Vue.use(Vuex)
 Vue.use(VueResource)
