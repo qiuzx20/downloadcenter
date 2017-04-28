@@ -24,6 +24,7 @@
 	</div>
 </template>
 <script>
+import {mapActions} from 'vuex'
 import Seletcer from 'widget/form/select.vue'
 import Pubtext from 'widget/form/pubtext.vue'
 import Pubtextarea from 'widget/form/pubtextarea.vue'
@@ -112,6 +113,7 @@ export default {
 	},
 	props:['option','id'],
 	methods:{
+		...mapActions(['showModal','closeModal']),
 		eventListener(type,param){
 			param && type == "clickHandler" && param.name == 1 ? (this.applyVal = 1) : (this.applyVal = 0)
 		},
@@ -137,7 +139,7 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(optionA)
 					return
 				}
 				res.data.approver.forEach((item)=>{
@@ -217,10 +219,10 @@ export default {
 			}).then((res)=>{
 				if(res.data.authResult){
 					const that = this
-					const timeidA = (new Date()).getTime()
-					const optionA = {
+					const timeid = (new Date()).getTime()
+					const option = {
 							Dialog:DialogModal,
-							timeid:timeidA,
+							timeid:timeid,
 							option:{
 								type:"ok",
 								title:"提示",
@@ -233,7 +235,7 @@ export default {
 								}
 							}
 						}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(option)
 					this.closeHandler()
 				}else{
 					Utils.errorModal({statusText:this.failReason[res.data.failReason],status:res.data.failReason},DialogModal,this.$store)
@@ -263,10 +265,10 @@ export default {
 				requestID:this.g_requestID,
 			}).then((res)=>{
 				if(res.data.resendResult="sms_success"){
-					const timeidA = (new Date()).getTime()
-					const optionA = {
+					const timeid = (new Date()).getTime()
+					const option = {
 							Dialog:DialogModal,
-							timeid:timeidA,
+							timeid:timeid,
 							option:{
 								type:"ok",
 								title:"提示",
@@ -276,7 +278,7 @@ export default {
 								}
 							}
 						}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(option)
 
 				}else{
 					const timeidA = (new Date()).getTime()
@@ -292,7 +294,7 @@ export default {
 								}
 							}
 						}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(optionA)
 				}
 				this.logContent="金库口令重发请求，请求Id："+res.data.requestID
 			},(error)=>{
@@ -310,7 +312,7 @@ export default {
 			
 		},
 		closeHandler(){
-			this.$store.dispatch("closeModal",this.id)
+			this.closeModal(this.id)
 		}
 	},
 	components:{

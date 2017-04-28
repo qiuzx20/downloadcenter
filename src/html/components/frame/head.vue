@@ -6,7 +6,7 @@
 	</div>
 </template>
 <script>
-import {mapGetters} from "vuex"
+import {mapGetters,mapActions} from "vuex"
 	export default {
 		name:'head',
 		data (){
@@ -21,11 +21,12 @@ import {mapGetters} from "vuex"
 			}
 		},
 		methods:{
+			...mapActions(['clearUser']),
 			userPermission(item){
 				return this.haslogin && ((item.menuid == 'isAuthorize' && !this.getUserInfo.isAuthorize) || (item.menuid == 'isMenu' && !this.getUserInfo.isMenu)) ? false:true
 			},
 			loginout (){
-				this.$store.dispatch("clearUser").then((res)=>{
+				this.clearUser().then((res)=>{
 					if(res == "ok"){
 						sessionStorage.removeItem("token")
 						this.haslogin = false

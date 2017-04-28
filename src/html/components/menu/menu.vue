@@ -1,10 +1,11 @@
 <template>
 	<div id="menu" :class="{'close':isclose}">
-		<Mysider ref="mysider" :option="datalist" v-if="datalist" :setting="setting" @sider-status="siderStatus"></Mysider>
+		<Mysider ref="mysider" :option="getMenu" v-if="getMenu.length > 0" :setting="setting" @sider-status="siderStatus"></Mysider>
 		<Right @onTrigger="eventListener"></Right>			
 	</div>
 </template>
 <script>
+import {mapGetters} from 'vuex'
 import Mysider from "widget/sider/sider.vue";
 import Right from "./right/right.vue";
 import DialogModal from 'pubwidget/dialog/dialog.vue'
@@ -22,6 +23,9 @@ export default {
 	},
 	created(){
 		this.getTree()
+	},
+	computed:{
+		...mapGetters(['getMenu'])
 	},
 	methods:{
 		eventListener(type,params){
@@ -58,7 +62,7 @@ export default {
 				    }
 			}
 			this.setting = setting
-			this.$http.get(window.apiUrl+"/menu/queryMenu").then((res)=>{
+			/*this.$http.get(window.apiUrl+"/menu/queryMenu").then((res)=>{
 				if(!res.data.code){
 					this.datalist = res.data.data
 
@@ -68,7 +72,7 @@ export default {
 			},
 			(error)=>{
 				Utils.errorModal(error,DialogModal,this.$store)
-			})
+			})*/
 		}
 	},
 	components:{Mysider,Right}

@@ -27,6 +27,7 @@
 	</div>
 </template>
 <script>
+import {mapActions} from 'vuex'
 import inputcompt from 'widget/form/input/input.vue'
 import Pagetool from 'pubwidget/pagetool/pagetool.vue'
 import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
@@ -55,15 +56,17 @@ export default {
 	},
 	watch:{
 		'$route':function(val,oldval){
+			if(!val.query.menuId){
+				history.go(-1)
+				return
+			}
 			if(val.query.menuId != oldval.query.menuId){
 				this.getLogList()
 			}
 		}
 	},
 	methods:{
-		eventListener(params){
-			console.log(params);
-		},
+		...mapActions(['showModal','closeModal']),
 		query(){
 			this.userName = this.$refs.username.getData()
 			this.fileName = this.$refs.filename.getData()
@@ -83,22 +86,16 @@ export default {
 					text:"正在加载数据..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.post(window.apiUrl+"/file/downloglist",{pageSize:this.pageinfo.pageSize,pageNumber:this.pageinfo.pageIndex,menuId:this.$route.query.menuId,fileName:this.fileName,usecnname:this.userName}).then((res)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				this.datalist = res.data.list
 				this.pageinfo.total = res.data.total
 
 			},(error)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
-		},
-		downloadfile(id){
-			console.log(event);
-			event.target.innerHTML="下载准备中..."
-			event.target.disabled=true
-			console.log(id);
 		}
 	},
 	components:{

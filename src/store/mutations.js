@@ -4,9 +4,6 @@ const mutations = {
 	[type.INCREMENT] (state) {
 	    state.count++
 	},
-	[type.GETSIDER] (state,data) {
-	 	state.navlist = data
-	 },
 	[type.SHOWMODAL] (state,option) {
 	 	state.modallist.push(option)
 	 },
@@ -33,6 +30,9 @@ const mutations = {
 	},
 	[type.QUERYLEVEL](state,params){
 		state.levellist = params
+	},
+	[type.QUERYMENU](state,params){
+		state.treelist = params
 	}
 }
 

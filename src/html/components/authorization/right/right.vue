@@ -41,7 +41,7 @@ import Authormodal from './authormodal.vue'
 import Downloadresult from './downloadresult.vue'
 import DialogModal from 'pubwidget/dialog/dialog.vue'
 import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
-import {mapGetters} from 'vuex'
+import {mapGetters,mapActions} from 'vuex'
 
 
 const pageinfo = {total: 2,pageSize: 9,pageIndex: 1}
@@ -81,12 +81,17 @@ export default {
 	},
 	watch:{
 		'$route':function(val,oldval){
+			if(!val.query.menuId){
+				history.go(-1)
+				return
+			}
 			if(val.query.menuId != oldval.query.menuId){
 				this.getAuthList()
 			}
 		}
 	},
 	methods:{
+		...mapActions(['showModal','closeModal']),
 		eventListener(params){
 		},
 		itemStatus(status){
@@ -136,7 +141,7 @@ export default {
 					text:"正在加载数据..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.post(window.apiUrl+"/file/filelist",{
 					pageSize:this.pageinfo.pageSize,
 					pageNumber:this.pageinfo.pageIndex,
@@ -147,12 +152,12 @@ export default {
 					isZip:this.isZip,
 					isAuth:this.isAuth
 				}).then((res)=>{
-					this.$store.dispatch("closeModal",timeid)
+					this.closeModal(timeid)
 					this.datalist = res.data.list
 					this.pageinfo.total = res.data.total
 
 				},(error)=>{
-					this.$store.dispatch("closeModal",timeid)
+					this.closeModal(timeid)
 					Utils.errorModal(error,DialogModal,this.$store)
 				})
 		},
@@ -167,7 +172,7 @@ export default {
 					content:data.sample_data
 					}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 
 		},
 		checkAll(){
@@ -207,7 +212,7 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(optionA)
 					return
 				}
 				temp = this.checknames
@@ -228,7 +233,7 @@ export default {
 					}
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 		}
 	},
 	components:{

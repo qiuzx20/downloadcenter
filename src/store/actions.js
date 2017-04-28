@@ -4,21 +4,6 @@ const actions = {
 	increment({commit}){
 		commit("INCREMENT")
 	},
-	getSider({commit}){
-		/*const data = [
-				{"id":1, "pId":0, "name":"PAAS平台下载"},
-				{"id":2, "pId":0, "name":"自助分析"},
-				{"id":12, "pId":2, "name":"共享"},
-				{"id":121, "pId":12, "name":"业务1"},
-				{"id":122, "pId":12, "name":"业务2"},
-				{"id":123, "pId":12, "name":"业务3"},
-				{"id":31, "pId":3, "name":"广州"},
-				{"id":32, "pId":3, "name":"深圳"},
-				{"id":33, "pId":3, "name":"中山"},
-				{"id":3, "pId":0, "name":"地市"}
-			]
-		commit("GETSIDER",data)*/
-	},
 	showModal({commit},option){
 		return new Promise(function(resolve){
 			option && commit("SHOWMODAL",option)
@@ -53,6 +38,19 @@ const actions = {
 					levelarr.push({name:item.level,showname:item.levelName})
 				})
 				commit("QUERYLEVEL",levelarr)
+				resolve("ok")
+			},(error)=>{
+				resolve(error)
+			})
+
+
+		})
+
+	},
+	queryMenu({commit},params){
+		return new Promise(function(resolve){
+			Vue.http.get(window.apiUrl+"/menu/queryMenu").then((res)=>{
+				commit("QUERYMENU",res.data.data)
 				resolve("ok")
 			},(error)=>{
 				resolve(error)

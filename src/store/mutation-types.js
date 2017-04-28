@@ -7,4 +7,5 @@ export const ADDTOROLE = 'ADDTOROLE'
 export const SETUSER = 'SETUSER'
 export const CLEARUSER = 'CLEARUSER'
 export const QUERYLEVEL = 'QUERYLEVEL'
+export const QUERYMENU = 'QUERYMENU'
 

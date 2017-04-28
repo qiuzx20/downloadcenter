@@ -1,14 +1,14 @@
 <template>
 	<div id="home" :class="{'close':isclose}">
-		<Mysider ref="mysider" v-if="datalist" :option="datalist" :setting="setting" @sider-status="siderStatus"></Mysider>
+		<Mysider ref="mysider" v-if="treelist.length > 1" :option="treelist" :setting="setting" @sider-status="siderStatus"></Mysider>
 		<component :is="currentView"></component>			
 	</div>
 </template>
 <script>
+import {mapGetters} from 'vuex'
 import Mysider from "widget/sider/sider.vue";
 import Myright1 from "./myright1.vue"
 import Myright2 from "./myright2.vue"
-
 import DialogModal from 'pubwidget/dialog/dialog.vue'
 import Utils from 'lib/utils/utils'
 
@@ -18,12 +18,19 @@ export default {
 		return {
 			isclose:false,
 			currentView:'',
-			datalist:'',
+			datalist:[{menu_id:-1, parent_id:null, menu_name:"PAAS平台下载"}],
 			setting:''
 		}
 	},
 	created(){
 		this.getTree()
+	},
+	computed:{
+		...mapGetters(['getMenu']),
+		treelist:function(){
+			return this.datalist.concat(this.getMenu)
+		}
+
 	},
 	watch:{
 		"$route": "listenerRoute"
@@ -65,17 +72,7 @@ export default {
 				    }
 			}
 			this.setting = setting
-			this.$http.get(window.apiUrl+"/menu/queryMenu").then((res)=>{
-				if(!res.data.code){
-					res.data && res.data.data.unshift({"menu_id":-1, "parent_id":null, "menu_name":"PAAS平台下载"})
-					this.datalist = res.data.data
-				}else{
-					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
-				}
-			},
-			(error)=>{
-				Utils.errorModal(error,DialogModal,this.$store)
-			})
+			
 		},
 		listenerRoute(){
 			if(this.$route.query.menuId != -1){

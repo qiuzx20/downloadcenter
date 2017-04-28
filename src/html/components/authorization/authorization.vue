@@ -1,6 +1,6 @@
 <template>
 	<div id="authorization" :class="{'close':isclose}">
-		<Mysider ref="mysider" :option="datalist" v-if="datalist.length > 0" :setting="setting" @sider-status="siderStatus"></Mysider>
+		<Mysider ref="mysider" :option="getMenu" v-if="getMenu.length > 0" :setting="setting" @sider-status="siderStatus"></Mysider>
 		<Right></Right>			
 	</div>
 </template>
@@ -8,6 +8,7 @@
 import Mysider from "widget/sider/sider.vue"
 import Right from "./right/right.vue"
 import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
+import {mapGetters} from 'vuex'
 
 
 export default {
@@ -23,7 +24,9 @@ export default {
 	created(){
 		this.getTree()
 	},
-	
+	computed:{
+		...mapGetters(['getMenu'])
+	},
 	methods:{
 		siderStatus (params) {
 			this.isclose=params;
@@ -58,14 +61,6 @@ export default {
 				    }
 			}
 			this.setting = setting
-			this.$http.get(window.apiUrl+"/menu/queryMenu").then((res)=>{
-				if(res.data.code !==0)Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
-				this.datalist = res.data.data
-
-			},
-			(error)=>{
-				Utils.errorModal(error,DialogModal,this.$store)
-			})
 		}
 	},
 	components:{Mysider,Right,LoadDialog}

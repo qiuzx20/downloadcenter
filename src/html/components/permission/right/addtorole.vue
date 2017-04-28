@@ -43,6 +43,7 @@
 	</div>
 </template>
 <script>
+import {mapActions} from 'vuex'
 import Inputcompt from 'widget/form/input/input.vue'
 import Pagetool from 'pubwidget/pagetool/pagetool.vue'
 import DialogModal from 'pubwidget/dialog/dialog.vue'
@@ -71,6 +72,7 @@ export default {
 	},
 	props:['id','option'],
 	methods:{
+		...mapActions(['showModal','closeModal']),
 		query(){
 			this.usecnname = this.$refs.usecnname.getData()
 			this.pageTo(1)
@@ -89,18 +91,18 @@ export default {
 					text:"正在加载数据..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.post(window.apiUrl+"/user/queryUserNotByRoleId",{roleId:this.$route.query.roleId,rows:this.pageinfo.pageSize,page:this.pageinfo.pageIndex,name:this.usecnname}).then((res)=>{
 				if(!res.data.code){
-					this.$store.dispatch("closeModal",timeid)
+					this.closeModal(timeid)
 					this.datalist = res.data.data.list
 					this.pageinfo.total = res.data.data.total
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}
-				this.$store.dispatch("closeModal",timeid)
+				this.showModal(option)
 			},(error)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
 		},
@@ -119,7 +121,7 @@ export default {
 						}
 					}
 				}
-				this.$store.dispatch("showModal",optionA)
+				this.showModal(optionA)
 
 				return
 			}
@@ -130,10 +132,10 @@ export default {
 			this.$http.post(window.apiUrl+"/user/saveUser",{roleId:this.$route.query.roleId,userIds:userarr}).then((res)=>{
 				if(!res.data.code){
 					const that = this
-					const timeidA = (new Date()).getTime()
-					const optionA = {
+					const timeid = (new Date()).getTime()
+					const option = {
 						Dialog:DialogModal,
-						timeid:timeidA,
+						timeid:timeid,
 						option:{
 							type:"ok",
 							title:"提示",
@@ -149,7 +151,7 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(option)
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}
@@ -178,7 +180,7 @@ export default {
 			this.checkednames = checkallname
 		},
 		closeHandler(){
-			this.$store.dispatch("closeModal",this.id)
+			this.closeModal(this.id)
 		},
 		okHandler(params){
 			this.saveUser()

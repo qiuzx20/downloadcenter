@@ -37,7 +37,7 @@ import Inputtext from 'pubwidget/form/input/input.vue'
 import ChooseManager from './choosemanager.vue'
 import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
 import DialogModal from 'pubwidget/dialog/dialog.vue'
-import {mapGetters} from 'vuex'
+import {mapGetters,mapActions} from 'vuex'
 
 
 import Utils from 'lib/utils/utils'
@@ -212,12 +212,17 @@ export default {
 			deep:true
 		},
 		'$route':function(val,oldval){
+			if(!val.query.menuId){
+				history.go(-1)
+				return
+			}
 			if(val.query.menuId != oldval.query.menuId){
 				this.getMenuInfo()
 			}
 		}
 	},
 	methods:{
+		...mapActions(['queryMenu','showModal','closeModal']),
 		eventListener(type,params,obj){
 			switch(obj){
 				case "manager":
@@ -240,9 +245,9 @@ export default {
 					text:"正在加载数据..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.post(window.apiUrl+"/menu/getMenuByMenuId",{menuId:this.$route.query.menuId}).then((res)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				if(!res.data.code){
 					this.menuinfo = res.data.data
 					this.setMenuVal(this.menuinfo)
@@ -253,7 +258,7 @@ export default {
 				
 
 			},(error)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
 		},
@@ -399,7 +404,7 @@ export default {
 					text:"正在提交数据..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			let saveurl = "/menu/updateMenu"
 			if(this.isadd){
 				saveurl = "/menu/addMenu"
@@ -417,7 +422,7 @@ export default {
 				ftpPwd:!this.leaf ? '' : this.$refs.ftppwd.getData(),
 				menuDesc:this.$refs.remark.getData() || ''
 			}).then((res)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				const that = this
 				const timeidA = (new Date()).getTime()
 				const optionA = {
@@ -434,15 +439,15 @@ export default {
 									that.addTreeNodes()
 									that.defaultVal(that.menuinfo)
 									that.isadd = false
+									that.queryMenu()
 								}
 							}
 						}
 					}
 				}
-				this.$store.dispatch("showModal",optionA)
-
+				this.showModal(optionA)
 			},(error)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
 		},
@@ -456,9 +461,9 @@ export default {
 					text:"正在删除..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.post(window.apiUrl+"/menu/deleteMenu",{menuId:this.$route.query.menuId}).then((res)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				if(!res.data.code){
 					const that = this
 					const timeidA = (new Date()).getTime()
@@ -477,13 +482,13 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(optionA)
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}
 				
 			},(error)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
 		},
@@ -503,7 +508,7 @@ export default {
 					title:'选择管理员'
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 		},
 		updateManager(val){
 			this.manager = val.user_id

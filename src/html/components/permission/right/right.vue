@@ -34,6 +34,7 @@
 	</div>
 </template>
 <script>
+import {mapActions} from 'vuex'
 import Pubtext from 'widget/form/pubtext.vue'
 import Seletcer from 'widget/form/select.vue'
 import Inputcompt from 'widget/form/input/input.vue'
@@ -115,13 +116,17 @@ export default {
 		"$route": "listenerRoute"
 	},
 	methods:{
+		...mapActions(['showModal','closeModal']),
 		eventListener(type,params,obj){
 		},
 		listenerRoute(val,oldval){
+			if(!val.query.roleId){
+				history.go(-1)
+				return
+			}
 			if(val.query.roleId != oldval.query.roleId){
 				this.doQueryUser()
 			}
-			
 		},
 		saveRole(){
 			if(!this.$refs.roleid.getData()){
@@ -166,18 +171,18 @@ export default {
 					text:"正在保存，请稍等..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			if(this.isadd){
 				actionurl=window.apiUrl+"/role/addRole"
 			}
 			this.$http.post(actionurl,{roleId:this.$refs.roleid.getData(),roleName:this.$refs.rolename.getData(),roleType:this.$refs.roletype.getData(),parentId:this.isadd?this.usernode.roleId:''}).then((res)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				if(!res.data.code){
 					const that = this
-					const timeidD = (new Date()).getTime()
-					const optionD = {
+					const timeidA = (new Date()).getTime()
+					const optionA = {
 						Dialog:DialogModal,
-						timeid:timeidD,
+						timeid:timeidA,
 						option:{
 							type:"ok",
 							title:"提示",
@@ -190,12 +195,12 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionD)
+					this.showModal(optionA)
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}
 			},(error)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
 			this.isadd = false
@@ -210,15 +215,15 @@ export default {
 					text:"正在删除，请稍等..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.post(window.apiUrl+"/role/deleteRole",{roleId:this.$route.query.roleId}).then((res)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				if(!res.data.code){
 					const that = this
-					const timeidD = (new Date()).getTime()
-					const optionD = {
+					const timeidA = (new Date()).getTime()
+					const optionA = {
 						Dialog:DialogModal,
-						timeid:timeidD,
+						timeid:timeidA,
 						option:{
 							type:"ok",
 							title:"提示",
@@ -231,13 +236,13 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionD)
+					this.showModal(optionA)
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}
 				
 			},(error)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
 		},
@@ -256,7 +261,7 @@ export default {
 					title:'选择管理员'
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 		},
 		updateManager(val){
 			this.manager = val.name
@@ -299,9 +304,9 @@ export default {
 					text:"正在加载数据..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.post(window.apiUrl+"/user/queryUserByRoleId",{roleId:this.$route.query.roleId,rows:this.pageinfo.pageSize,page:this.pageinfo.pageIndex,name:this.$refs.usercname.getData() || ''}).then((res)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				this.datalist = res.data.data && res.data.data.list
 				this.pageinfo.total = res.data.total
 
@@ -349,7 +354,7 @@ export default {
 						}
 					}
 				}
-				this.$store.dispatch("showModal",optionA)
+				this.showModal(optionA)
 				return
 			}
 			this.$http.post(window.apiUrl+"/user/deleteUser",{roleId:this.$route.query.roleId,userIds:this.checkednames}).then((res)=>{
@@ -371,7 +376,7 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionB)
+					this.showModal(timeidB)
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}
@@ -389,7 +394,7 @@ export default {
 					title:"编辑权限"
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 		},
 		addToRole(){
 			const that = this
@@ -406,7 +411,7 @@ export default {
 					}
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 		}/*,
 		unique(arr){
 			let i = 0

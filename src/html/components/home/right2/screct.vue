@@ -26,6 +26,7 @@
 	</div>
 </template>
 <script>
+import {mapActions} from 'vuex'
 import inputcompt from 'widget/form/input/input.vue'
 import Pagetool from 'pubwidget/pagetool/pagetool.vue'
 import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
@@ -58,12 +59,17 @@ export default {
 	},
 	watch:{
 		'$route':function(val,oldval){
+			if(!val.query.menuId){
+				history.go(-1)
+				return
+			}
 			if(val.query.menuId != oldval.query.menuId){
 				this.getScrectList()
 			}
 		}
 	},
 	methods:{
+		...mapActions(['showModal','closeModal']),
 		eventListener(params){
 			console.log(params);
 		},
@@ -86,23 +92,23 @@ export default {
 					text:"正在加载数据..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.post(window.apiUrl+"/file/filepwdlist",{pageSize:this.pageinfo.pageSize,pageNumber:this.pageinfo.pageIndex,menuId:this.$route.query.menuId,fileName:this.fileName,usecnname:this.userName}).then((res)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				this.datalist = res.data.list
 				this.pageinfo.total = res.data.total
 				},(error)=>{
-					this.$store.dispatch("closeModal",timeid)
+					this.closeModal(timeid)
 					Utils.errorModal(error,DialogModal,this.$store)
 				})
 		},
 		sendscrect(item){
 			this.$http.post(window.apiUrl+"/file/sendpwd",{fileId:item.file_id || '',userId:item.user_id || ''}).then((res)=>{
 				if(!res.data.code){
-					const timeidA = (new Date()).getTime()
-					const optionA = {
+					const timeid = (new Date()).getTime()
+					const option = {
 						Dialog:DialogModal,
-						timeid:timeidA,
+						timeid:timeid,
 						option:{
 							type:"ok",
 							title:"提示",
@@ -112,7 +118,7 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(option)
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}

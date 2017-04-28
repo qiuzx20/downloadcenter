@@ -17,6 +17,7 @@
 	</div>
 </template>
 <script>
+import {mapActions} from 'vuex'
 import Email from './email.vue'
 
 
@@ -29,6 +30,7 @@ export default {
 	},
 	props:['id','option'],
 	methods:{
+		...mapActions(['closeModal']),
 		emailcheck(){
 
 		},
@@ -36,14 +38,12 @@ export default {
 			if("blurHandler" == type){
 				this.emailcheck()
 			}
-			console.log(type);
-			console.log(params);
 		},
 		okHandler(){
 
 		},
 		closeHandler(id){
-			this.$store.dispatch("closeModal",id)
+			this.closeModal(id)
 		}
 	},
 	components:{

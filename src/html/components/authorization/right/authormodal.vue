@@ -76,7 +76,7 @@ import Raido from 'pubwidget/form/radio/radio.vue'
 import Pagetool from 'pubwidget/pagetool/pagetool.vue'
 import DialogModal from 'pubwidget/dialog/dialog.vue'
 import Utils from 'lib/utils/utils'
-import {mapGetters} from 'vuex'
+import {mapGetters,mapActions} from 'vuex'
 
 const datalist=[{id:1,name:"test01"},{id:2,name:"test02"},{id:3,name:"test03"}]
 const pageinfo = {total: 1,pageSize: 5,pageIndex: 1}
@@ -142,6 +142,7 @@ export default {
 		}
 	},
 	methods:{
+		...mapActions(['queryLevel','showModal','closeModal']),
 		query(){
 			this.userName = this.$refs.username.getData() || ''
 			this.pageTo(1)
@@ -159,7 +160,7 @@ export default {
 			})
 		},
 		queryLevel(){
-			this.$store.dispatch("queryLevel").then((resolve)=>{
+			this.queryLevel().then((resolve)=>{
 				if(resolve != "ok" && resolve.data.code > 0)Utils.errorModal(resolve,DialogModal,this.$store)
 			})
 		},
@@ -191,10 +192,10 @@ export default {
 		checkIsWater(item){
 			if(this.iswater == '0') return true
 			if(item.file_size > 30 || item.file_line > 100000){
-					const timeidA = (new Date()).getTime()
-					const optionA = {
+					const timeid = (new Date()).getTime()
+					const option = {
 						Dialog:DialogModal,
-						timeid:timeidA,
+						timeid:timeid,
 						option:{
 							type:"error",
 							title:"提示",
@@ -204,7 +205,8 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(option)
+
 				return false
 			}
 			return true
@@ -250,7 +252,7 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(optionA)
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}
@@ -262,7 +264,7 @@ export default {
 			})
 		},
 		closeHandler(){
-			this.$store.dispatch("closeModal",this.id)
+			this.closeModal(this.id)
 		},
 		okHandler(params){
 			this.saveAuth()

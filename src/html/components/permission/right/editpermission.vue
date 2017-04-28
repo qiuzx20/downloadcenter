@@ -14,9 +14,11 @@
 	</div>
 </template>
 <script>
+import {mapActions} from 'vuex'
 import zTree from 'lib/ztree/jquery.ztree.all.min.js'
 import 'lib/ztree/zTreeStyle.css'
 import DialogModal from 'pubwidget/dialog/dialog.vue'
+import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
 import Utils from 'lib/utils/utils'
 
 export default {
@@ -29,24 +31,39 @@ export default {
 		}
 	},
 	created(){
-		this.$http.post(window.apiUrl+"/menu/getPrivilegeByRoleId",{roleId:this.option.roleid}).then((res)=>{
-			const itemarr = []
-			res.data.data.forEach((item)=>{
-				item.checked = (item.isprivilege === 1)
-				itemarr.push(item)
-			})
-			this.treelist = itemarr
-
-			this.buildTree();
-		},(error)=>{
-			Utils.errorModal(error,DialogModal,this.$store)
-		})
-		
+		this.queryTree()
 	},
 	props:['id','option'],
 	methods:{
+		...mapActions(['showModal','closeModal']),
 		eventListener(type,params){
 			this.$emit("onTrigger",type,params)
+		},
+		queryTree(){
+			const timeid = (new Date()).getTime()
+			const option = {
+				Dialog:LoadDialog,
+				timeid:timeid,
+				option:{
+					type:"loading",
+					text:"正在加载数据..."
+				}
+			}
+			this.showModal(option)
+			this.$http.post(window.apiUrl+"/menu/getPrivilegeByRoleId",{roleId:this.option.roleid}).then((res)=>{
+				this.closeModal(timeid)
+				const itemarr = []
+				res.data.data.forEach((item)=>{
+					item.checked = (item.isprivilege === 1)
+					itemarr.push(item)
+				})
+				this.treelist = itemarr
+
+				this.buildTree();
+			},(error)=>{
+				this.closeModal(timeid)
+				Utils.errorModal(error,DialogModal,this.$store)
+			})
 		},
 		buildTree(){
 			const that = this
@@ -98,7 +115,7 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(optionA)
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}
@@ -108,7 +125,7 @@ export default {
 			})
 		},
 		closeHandler(){
-			this.$store.dispatch("closeModal",this.id)
+			this.closeModal(this.id)
 		},
 		okHandler(params){
 			this.savePrivilege()

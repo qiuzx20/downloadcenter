@@ -1,5 +1,5 @@
-export const getsider = (state) =>{
-	return state.navlist
+export const getMenu = (state) =>{
+	return state.treelist
 }
 export const getModal = (state) =>{
 	return state.modallist

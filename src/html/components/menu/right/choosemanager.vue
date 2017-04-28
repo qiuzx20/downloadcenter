@@ -46,6 +46,7 @@
 	</div>
 </template>
 <script>
+import {mapActions} from 'vuex'
 import Inputcompt from 'widget/form/input/input.vue'
 import Pagetool from 'pubwidget/pagetool/pagetool.vue'
 import DialogModal from 'pubwidget/dialog/dialog.vue'
@@ -68,6 +69,7 @@ export default {
 		this.getUserList()
 	},
 	methods:{
+		...mapActions(['showModal','closeModal','chooseManager']),
 		eventListener(type,params){
 			this.$emit("onTrigger",type,params)
 		},
@@ -89,9 +91,9 @@ export default {
 					text:"正在加载数据..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.post(window.apiUrl+"/file/userlist",{menuId:this.$route.query.menuId,userName:this.userName,pageSize:this.pageinfo.pageSize,pageNumber:this.pageinfo.pageIndex}).then((res)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				this.datalist = res.data.list
 				this.pageinfo.total = res.data.total
 			},(error)=>{
@@ -99,11 +101,11 @@ export default {
 			})
 		},
 		closeHandler(){
-			this.$store.dispatch("closeModal",this.id)
+			this.closeModal(this.id)
 		},
 		okHandler(params){
-			this.$store.dispatch("chooseManager",this.selected).then((resp)=>{
-				if(resp == "ok"){
+			this.chooseManager(this.selected).then((resolve)=>{
+				if(resolve == "ok"){
 					this.closeHandler()
 				}
 			})	

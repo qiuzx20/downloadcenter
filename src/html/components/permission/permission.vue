@@ -5,9 +5,11 @@
 	</div>
 </template>
 <script>
+import {mapActions} from 'vuex'
 import Mysider from "widget/sider/sider.vue";
 import Right from "./right/right.vue";
 import DialogModal from 'pubwidget/dialog/dialog.vue'
+import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
 import Utils from 'lib/utils/utils'
 
 export default {
@@ -24,6 +26,7 @@ export default {
 		this.getTree()
 	},
 	methods:{
+		...mapActions(['showModal','closeModal']),
 		siderStatus (params) {
 			this.isclose=params;
 		},
@@ -62,9 +65,9 @@ export default {
 					text:"正在加载数据..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.get(window.apiUrl+"/role/queryAllRole").then((res)=>{
-				this.$store.dispatch("closeModal",timeid)
+				this.closeModal(timeid)
 				if(!res.data.code){
 					this.userlist = res.data.data
 				}else{

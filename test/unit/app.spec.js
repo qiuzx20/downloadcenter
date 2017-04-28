@@ -7,8 +7,9 @@ import Vuex from 'vuex'
 import {mapGetters} from 'vuex'
 import App from '../../src/app.vue'
 import Sider from 'widget/sider/sider.vue'
+import index from '../../src/index'
 //import index from '../../src/index'
-const this={},this.$route = {path:"home",query:{menuId:'sysmar'}}
+/*const this={},this.$route = {path:"home",query:{menuId:'sysmar'}}*/
 
 
 describe('test karma',()=>{
@@ -44,7 +45,7 @@ describe('test sider.vue',()=>{
 	it("sider.vue是否正常运行",()=>{
 
 		//console.log(Sider.);
-		expect(typeof Sider.data).toBe('function')
+		//expect(typeof Sider.data).toBe('function')
 		//const vm = new Vue(Sider).$mount()
 
 		//expect("abcd").toEqual("abcd");

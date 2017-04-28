@@ -30,7 +30,7 @@
 	</div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
+import {mapGetters,mapActions} from 'vuex'
 import selectbar from 'pubwidget/form/select/select.vue'
 import inputcompt from 'widget/form/input/input.vue'
 import Downloadapply from './widget/downloadapply.vue'
@@ -73,12 +73,17 @@ export default {
 	},
 	watch:{
 		'$route':function(val,oldval){
+			if(!val.query.menuId){
+				history.go(-1)
+				return
+			}
 			if(val.query.menuId != oldval.query.menuId){
 				this.getFilesList()
 			}
 		}
 	},
 	methods:{
+		...mapActions(['showModal','closeModal']),
 		eventListener(params){
 		},
 		fileStatus(status){
@@ -122,7 +127,7 @@ export default {
 					text:"正在加载数据..."
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 			this.$http.post(window.apiUrl+"/file/fileuserlist",
 				{
 					pageSize:this.pageinfo.pageSize,
@@ -134,10 +139,10 @@ export default {
 					isZip:this.isZip
 				}).then((res)=>{
 								this.datalist = res.data.list
-								this.$store.dispatch("closeModal",timeid)
+								this.closeModal(timeid)
 								this.pageinfo.total = res.data.total
 							},(error)=>{
-								this.$store.dispatch("closeModal",timeid)
+								this.closeModal(timeid)
 								Utils.errorModal(error,DialogModal,this.$store)
 
 							})
@@ -161,7 +166,7 @@ export default {
 							}
 						}
 					}
-					this.$store.dispatch("showModal",optionA)
+					this.showModal(optionA)
 					event.target.innerHTML="立即下载"
 					event.target.disabled=false
 				}else{
@@ -192,7 +197,7 @@ export default {
 					fileId:item.file_id
 				}
 			}
-			this.$store.dispatch("showModal",option)
+			this.showModal(option)
 		},
 		downloadfileHandler(item){
 			if(item.file_status == 1){

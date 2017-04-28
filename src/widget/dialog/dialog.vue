@@ -15,19 +15,16 @@
 	</div>
 </template>
 <script>
+import {mapActions} from 'vuex'
 import './dialog.less'
 
 export default {
 	name:'dialog',
-	data(){
-		return {
-
-		}
-	},
 	props:['option','id'],
 	methods:{
+		...mapActions(['closeModal']),
 		closeHandler(){
-			this.$store.dispatch("closeModal",this.id);
+			this.closeModal(this.id)
 		},
 		okHandler(){
 			if (this.option.ok.callback) {
