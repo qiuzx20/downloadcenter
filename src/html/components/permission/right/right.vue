@@ -1,6 +1,6 @@
 <template>
 	<div class="content-right">
-		<div class="topcrumb"><h3 class="title fl">{{!isadd?"角色信息编辑":"增加角色"}}</h3><span class="fr"><a class="btn btn-green mr-10" v-show="!isadd" @click="editPermission">编辑权限</a><a class="btn btn-green mr-10" v-show="!isadd" @click="addRole">增加角色</a> <a class="btn btn-green" v-show="!isadd" @click="delRole">删除角色</a></span></div>
+		<div class="topcrumb"><h3 class="title fl">{{!isadd?"角色信息编辑":"增加角色"}}</h3><span class="fr"><a class="btn btn-green mr-10" v-show="!isadd && !showEdit" @click="editPermission">编辑权限</a><a class="btn btn-green mr-10" v-show="!isadd" @click="addRole">增加角色</a> <a class="btn btn-green" v-show="!isadd" @click="delRole">删除角色</a></span></div>
 		<div class="clearfix">
 			<ul class="ulform menu-u-top">
 				<Pubtext ref="roleid" :option="option1" @onTrigger="eventListener"></Pubtext>
@@ -9,19 +9,18 @@
 				<ol class="clearfix"></ol>
 			</ul>
 		</div>
-		<div class="clearfix"><button class="btn btn-blue mr-10" @click="saveRole">保 存</button></div>
-		<div class="topcrumb mt-40" v-if="!isadd"><h3 class="title fl">用户列表</h3><span class="fr">
+		<div class="clearfix"><button class="btn btn-blue mr-10" @click="saveRole">保 存</button><button class="btn btn-blue" v-show="isadd" @click="cancelRole">取 消</button></div>
+		<div class="topcrumb mt-40" v-show="!isadd"><h3 class="title fl">用户列表</h3><span class="fr">
 			<Inputcompt ref="usercname" :option="option4" v-show="datalist"></Inputcompt>
 					<span class="btn btn-green fl mr-10" @click="queryUser" v-show="datalist">查 询</span><a class="fl btn btn-green mr-10"  @click="addToRole">添加用户到该角色</a><a class="fl btn btn-green mr-10" @click="delUser" v-show="datalist">删除用户</a> </span></div>
-		<div class="tablearea mt-10" v-if="!isadd">
+		<div class="tablearea mt-10" v-show="!isadd">
 			<table class="clearfix">
-			<thead><tr><th width="6%"><label><input type="checkbox" @click="checkAll" v-model="checkall"/>全选</label></th><th width="20%">用户id</th><th width="10%">用户名</th><th width="10%">角色名称</th><th width="10%">手机号码</th><th width="14%">邮箱</th><th width="30%">备注</th></tr></thead>
+			<thead><tr><th width="6%"><label><input type="checkbox" @click="checkAll" v-model="checkall"/>全选</label></th><th width="20%">用户id</th><th width="20%">用户名</th><th width="10%">手机号码</th><th width="14%">邮箱</th><th width="30%">备注</th></tr></thead>
 			<tbody>
 				<tr v-for='item in datalist' :id="item.username">
 					<td width="6%"><input type="checkbox" :value="item.username" v-model="checkednames" :checked="checkednames.indexOf(item.username) > -1" /></td>
 					<td width="20%">{{item.username}}</td>
-					<td width="10%">{{item.usecnname}}</td>
-					<td width="10%">{{item.dbuser}}</td>
+					<td width="20%">{{item.usecnname}}</td>
 					<td width="10%">{{item.phone}}</td>
 					<td width="14%">{{item.mail}}</td>
 					<td width="30%">{{item.remark}}</td>
@@ -34,7 +33,7 @@
 	</div>
 </template>
 <script>
-import {mapActions} from 'vuex'
+import {mapGetters,mapActions} from 'vuex'
 import Pubtext from 'widget/form/pubtext.vue'
 import Seletcer from 'widget/form/select.vue'
 import Inputcompt from 'widget/form/input/input.vue'
@@ -109,7 +108,15 @@ export default {
 			checkall:0,
 			roleid:'',
 			isadd:false,
-			usernode:''
+			usernode:'',
+			isroleunique:false,
+			childrenNum:0 //下级节点数
+		}
+	},
+	computed:{
+		...mapGetters(['getUserInfo']),
+		showEdit:function(){
+			return this.getUserInfo.userName != 'admin' && (this.usernode.parentId == null)
 		}
 	},
 	watch:{
@@ -118,6 +125,9 @@ export default {
 	methods:{
 		...mapActions(['showModal','closeModal']),
 		eventListener(type,params,obj){
+			if(obj == "roleid"){
+				if(type == "blurHandler")this.isRoleUniqueCheck()
+			}
 		},
 		listenerRoute(val,oldval){
 			if(!val.query.roleId){
@@ -128,7 +138,22 @@ export default {
 				this.doQueryUser()
 			}
 		},
-		saveRole(){
+		isRoleUniqueCheck(){
+			this.$http.post(window.apiUrl+"/role/roleCheck",{roleId:this.$refs.roleid.getData() || ''}).then((res)=>{
+				if(!res.data.code){
+					this.isroleunique = false
+				}else if(res.data.code == 2){
+					this.isroleunique = true
+					this.$refs.roleid.type = "error"
+					this.$refs.roleid.errorText = "该角色id已存在！"
+				}else{
+					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
+				}
+			},(error)=>{
+				Utils.errorModal(error,DialogModal,this.$store)
+			})
+		},
+		checkForm(){
 			if(!this.$refs.roleid.getData()){
 				this.$refs.roleid.focus()
 				return
@@ -136,6 +161,12 @@ export default {
 			if(Utils.isChineseChar(this.$refs.roleid.getData())){
 				this.$refs.roleid.type = "error"
 				this.$refs.roleid.errorText = "角色ID不能包含中文"
+				this.$refs.roleid.focus()
+				return
+			}
+			if(this.isroleunique){
+				this.$refs.roleid.type = "error"
+				this.$refs.roleid.errorText = "该菜单id已存在！"
 				this.$refs.roleid.focus()
 				return
 			}
@@ -147,12 +178,20 @@ export default {
 				this.$refs.roletype.focus()
 				return
 			}
+			return true
+		},
+		saveRole(){
+			if(!this.checkForm())return
 			this.doSave()
-
-			
+		},
+		cancelRole(){
+			this.isadd = false
+			this.defaultInfo()
+			this.userList()
 		},
 		addRole(){
 			this.isadd = true
+			this.$refs.roleid.$refs.pubtext.disabled = false
 			this.$refs.roleid.setData('')
 			this.$refs.rolename.setData('')
 			this.$refs.roletype.setData('')
@@ -206,6 +245,23 @@ export default {
 			this.isadd = false
 		},
 		delRole(){
+			if(this.childrenNum > 0){
+					const timeidC = (new Date()).getTime()
+					const optionC = {
+						Dialog:DialogModal,
+						timeid:timeidC,
+						option:{
+							type:"error",
+							title:"提示",
+							content:"请先删除下级角色！",
+							ok:{
+								text:"知道了"
+							}
+						}
+					}
+				this.showModal(optionC)
+				return
+			}
 			const timeid = (new Date()).getTime()
 			const option = {
 				Dialog:LoadDialog,
@@ -248,6 +304,7 @@ export default {
 		},
 		defaultInfo(){
 			this.$refs.roleid.setData(this.usernode.roleId)
+			this.usernode.roleId && (this.$refs.roleid.$refs.pubtext.disabled = true)
 			this.$refs.rolename.setData(this.usernode.roleName)
 			this.$refs.roletype.setData({"name":this.usernode.roleType,"showname":this.usernode.roleTypeName})
 		},
@@ -326,9 +383,7 @@ export default {
 			}else{
 				let temp = this.checkednames
 				temp.forEach((v,i,a)=>{
-					if(allname.indexOf(v) == -1){
-						checkallname.push(v)
-					}
+					if(allname.indexOf(v) == -1)checkallname.push(v)
 				})
 			}
 			this.checkednames = checkallname
@@ -376,7 +431,7 @@ export default {
 							}
 						}
 					}
-					this.showModal(timeidB)
+					this.showModal(optionB)
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}

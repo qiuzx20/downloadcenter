@@ -23,7 +23,7 @@ import {mapGetters,mapActions} from "vuex"
 		methods:{
 			...mapActions(['clearUser']),
 			userPermission(item){
-				return this.haslogin && ((item.menuid == 'isAuthorize' && !this.getUserInfo.isAuthorize) || (item.menuid == 'isMenu' && !this.getUserInfo.isMenu)) ? false:true
+				return this.haslogin && ((item.menuid == 'isRole' && !this.getUserInfo.isRole) || (item.menuid == 'isAuthorize' && !this.getUserInfo.isAuthorize) || (item.menuid == 'isMenu' && !this.getUserInfo.isMenu)) ? false:true
 			},
 			loginout (){
 				this.clearUser().then((res)=>{

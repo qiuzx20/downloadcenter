@@ -9,7 +9,7 @@ module.exports = {
         "vendor":["jquery"]*/
     },
     output: {
-        path:path.join(__dirname , "./dist/") ,
+        path:path.join(__dirname , "/dist/") ,
         publicPath:"/dist/",
         filename: "js/[name].bundle.js"
     },

@@ -12,7 +12,7 @@
 		</div>
 		<div class="tablearea mt-10">
 			<table >
-			<thead><tr><th width="6%"><label><input type="checkbox" v-model="checkall" @click="checkAll"/>全选</label></th><th width="10%">文件编号</th><th width="10%">文件名</th><th width="10%">更新日期</th><th width="5%">状态</th><th width="7%">大小(M)</th><th width="7%">记录条数</th><th width="7%">敏感级别</th><th width="8%">是否加水印</th><th width="10%">是否压缩加密</th><th width="20%">操作</th></tr></thead>
+			<thead><tr><th width="6%"><label><input type="checkbox" v-model="checkall" @click="checkAll"/>全选</label></th><th width="10%">文件编号</th><th width="10%">文件名</th><th width="10%">更新日期</th><th width="5%">状态</th><th width="7%">大小(K)</th><th width="7%">记录条数</th><th width="7%">敏感级别</th><th width="8%">是否加水印</th><th width="10%">是否压缩加密</th><th width="20%">操作</th></tr></thead>
 			<tbody>
 				<tr v-for='item in datalist' :id="item.file_id">
 					<td width="6%"><input type="checkbox" :id="item.file_id + 'item'" v-model="checknames" :value="item"/></td>
@@ -20,12 +20,12 @@
 					<td width="10%" :title="item.file_name">{{item.file_name}}</td>
 					<td width="10%">{{item.update_time}}</td>
 					<td width="5%">{{!item.auth_status?"未授权":"已授权"}}</td>
-					<td width="7%">{{item.file_size}}</td>
+					<td width="7%">{{formatNumberRgx(item.file_size)}}</td>
 					<td width="7%">{{item.file_line}}</td>
 					<td width="7%">{{item.sentive_level}}</td>
 					<td width="8%">{{item.is_warter?"是":"否"}}</td>
 					<td width="10%">{{item.is_zip?"是":"否"}}</td>
-					<td width="20%"><button class="btn btn-small btn-primary mr-10" @click="authorization(item)">授权</button><button class="btn btn-small btn-primary" :disabled="item.file_status < 2 && item.file_status > 3" @click="(item.file_status == 2 || item.file_status == 3) && getResult(item)">{{itemStatus(item.file_status)}}</button></td>
+					<td width="20%"><button class="btn btn-small btn-primary mr-10" @click="authorization(item)" :disabled="item.file_status < 2">授权</button><button class="btn btn-small btn-primary" :disabled="item.file_status < 2 && item.file_status > 3" @click="(item.file_status == 2 || item.file_status == 3) && getResult(item)">{{itemStatus(item.file_status)}}</button></td>
 				</tr>
 			</tbody>
 			</table>
@@ -42,6 +42,7 @@ import Downloadresult from './downloadresult.vue'
 import DialogModal from 'pubwidget/dialog/dialog.vue'
 import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
 import {mapGetters,mapActions} from 'vuex'
+import Utils from 'lib/utils/utils'
 
 
 const pageinfo = {total: 2,pageSize: 9,pageIndex: 1}
@@ -94,6 +95,9 @@ export default {
 		...mapActions(['showModal','closeModal']),
 		eventListener(params){
 		},
+		formatNumberRgx(num){
+			return Utils.formatNumberRgx(num)
+		},
 		itemStatus(status){
 			let result
 			switch(status){
@@ -123,7 +127,7 @@ export default {
 			this.isWarter = this.$refs.water.getData() ==='' ? this.isWarter:this.$refs.water.getData()
 			this.isZip = this.$refs.zip.getData() ==='' ? this.isZip : this.$refs.zip.getData()
 			this.isAuth = this.$refs.auth.getData() ==='' ? this.isAuth : this.$refs.auth.getData()
-			this.fileName = this.$refs.filename.getData() || this.fileName
+			this.fileName = this.$refs.filename.getData() || ''
 			this.pageTo(1)
 		},
 		pageTo(num){

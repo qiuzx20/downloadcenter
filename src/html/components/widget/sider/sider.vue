@@ -16,11 +16,11 @@ export default {
 	name:'sider',
 	data(){
 		return {
-			status:false,
-			menu_id:this.$route.query.menu_id ||'',
-			roleId:this.$route.query.roleId ||'',
-			treelist:[],
-			treeObj:''
+			status:false, //false:展开，true:关闭
+			menu_id:this.$route.query.menu_id ||'', //当前菜单ID
+			roleId:this.$route.query.roleId ||'', //当前角色ID
+			treelist:[], //侧边菜单数据
+			treeObj:'' //ztree对象
 		}
 	},
 	mounted(){
@@ -30,22 +30,20 @@ export default {
 	props:['option','setting'],
 	watch:{
 		treelist:function(val,oldval){
-			if(!val.length && val != oldval){
-				this.buildTree(val);
-			}
+			if(!val.length && val != oldval)this.buildTree(val);
 		}
 	},
 	methods:{
 		eventListener (type,params) {
 			this.$emit(type,params);
 		},
-		resize () {
+		resize(){
 			if(!this.status){
 				this.status = true;
 			}else{
 				this.status = false;
 			}
-			this.eventListener('sider-status',this.status);
+			this.eventListener('siderStatus',this.status);
 		},
 		addNodes(params){
 			const parentZNode = this.treeObj.getNodeByParam("menu_id",params.parent_id, null); //获取父节点 

@@ -18,7 +18,7 @@ export default {
 		}
 	},
 	methods:{
-		...mapActions(['showModal','closeModal','setUser','queryLevel','queryMenu']),
+		...mapActions(['showModal','closeModal','saveUser','queryLevel']),
 		login(){
 
 			if(!this.$route.query.token && !sessionStorage.getItem("token")){ 
@@ -52,12 +52,12 @@ export default {
 			const _token = this.$route.query.token || sessionStorage.getItem("token")
 			this.$http.post(window.apiUrl + "/login/ssologin",{token:_token}).then((res)=>{
 					if(!res.data.code){
-						this.setUser(res.data.data)
+						this.saveUser(res.data.data)
 						sessionStorage.setItem("haslogin",true)
 						sessionStorage.setItem("token",_token)
 						this.$router.push({path:this.$route.query.redirect})
 						this.queryLevelHandle()
-						this.queryMenuHandle()
+						//this.queryMenuHandle()
 					}else{
 						Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 					}
@@ -72,12 +72,12 @@ export default {
 			this.queryLevel().then((resolve)=>{
 				(resolve != "ok") && (resolve.data.code != 0) && Utils.errorModal(resolve,DialogModal,this.$store)
 			})
-		},
+		}/*,
 		queryMenuHandle(){
 			this.queryMenu().then((resolve)=>{
 				(resolve != "ok") && (resolve.data.code != 0) && Utils.errorModal(resolve,DialogModal,this.$store)
 			})
-		}
+		}*/
 	},
 	components:{
 		LoadDialog

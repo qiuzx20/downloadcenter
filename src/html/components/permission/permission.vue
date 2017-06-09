@@ -1,7 +1,7 @@
 <template>
 	<div id="permission" :class="{'close':isclose}">
-		<Mysider ref="mysider" :option="userlist" :setting="setting" v-if="userlist" @sider-status="siderStatus"></Mysider>
-		<Right :usernode="usernode"></Right>			
+		<Mysider ref="mysider" :option="userlist" :setting="setting" v-if="userlist" @siderStatus="siderStatus"></Mysider>
+		<Right ref="right" :usernode="usernode"></Right>			
 	</div>
 </template>
 <script>
@@ -52,6 +52,11 @@ export default {
 				    callback:{
 				        onClick (event,treeId,treeNode,clickFlag){
 				        		that.$refs.mysider.goupdata(treeNode)
+				        		if(treeNode.children){
+				        			that.$refs.right.childrenNum = treeNode.children.length
+				        		}else{
+				        			that.$refs.right.childrenNum = 0
+				        		}
 				        	}
 				    }
 			}
@@ -79,7 +84,6 @@ export default {
 			})
 		},
 		setUsernode(val){
-			console.log(val);
 			this.usernode = val
 		}
 	},

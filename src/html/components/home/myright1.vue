@@ -1,6 +1,6 @@
 <template>
 <div class="content-right">
-	<iframe :src="'http://221.179.44.125/cmgz-me/ftl/guangzhou/ftl/wjxz/downManage?token='+token" frameborder="0" class="paas" :style="{height:contentheight+'px'}"></iframe></div>
+	<iframe :src="'http://10.252.158.100:9080/cmgz-me/ftl/guangzhou/ftl/wjxz/downManage?token='+token" frameborder="0" class="paas" :style="{height:contentheight+'px'}"></iframe></div>
 </template>
 <script>
 export default {

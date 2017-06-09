@@ -12,7 +12,7 @@
 					@blur="blurHandler"
 					@change="changeHandler"
 					@keyPress="onKeyPress"
-
+					:disabled="disabled"
 					v-focus="focusStatus"
 					lazy
 				/>
@@ -39,7 +39,8 @@ export default {
 			inputCls:inputCls,
 			value:'',
 			showTip:false,
-			focusStatus:false
+			focusStatus:false,
+			disabled:false
 		}
 	},
 	directives:{

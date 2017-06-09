@@ -25,7 +25,7 @@ export default {
 		...mapGetters(['getModal'])
 	},
 	mounted(){
-		window.addEventListener("resize",this.resize)
+		window.addEventListener("resize",this.resize)//监听窗口尺寸变化
 	},
 	
 	methods:{

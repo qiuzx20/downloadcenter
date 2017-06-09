@@ -70,7 +70,9 @@ function isEmptyObject(obj) {
  	return true;
 }
 router.beforeEach((to,from,next)=>{
+	//检测是否需要登录才能访问
 	if(to.meta.requireAuth){
+		//检测是否登录
 		if(!isEmptyObject(store.store.state.user)){
 			next()
 		}else{

@@ -37,7 +37,10 @@
 				</table>
 			</div>
 		</div>
-			<div class="chooseauth clearboth ">
+			<div class="chooseauthfile clearboth c666" v-if="singleFile">
+				<span class="mr-20">已授权用户：</span><label class="mr-10" v-for="item in authoruser">{{item.user_name}}</label>
+			</div>
+			<div class="chooseauth clearboth mt-10">
 				<ul class="ulform clearfix">
 					<Selecter ref="level" :option="levellist"></Selecter>
 					<li class="clearfix">
@@ -76,9 +79,9 @@ import Raido from 'pubwidget/form/radio/radio.vue'
 import Pagetool from 'pubwidget/pagetool/pagetool.vue'
 import DialogModal from 'pubwidget/dialog/dialog.vue'
 import Utils from 'lib/utils/utils'
+import LoadDialog from 'pubwidget/loaddialog/loaddialog.vue'
 import {mapGetters,mapActions} from 'vuex'
 
-const datalist=[{id:1,name:"test01"},{id:2,name:"test02"},{id:3,name:"test03"}]
 const pageinfo = {total: 1,pageSize: 5,pageIndex: 1}
 
 export default {
@@ -95,16 +98,16 @@ export default {
 			isscrect:0,
 			files:[],
 			fileerror:'',
+			authoruser:[],
 			usererror:false
 
 		}
 	},
 	props:['id','option'],
-	mounted(){
-		this.files = this.option.params
-	},
 	created(){
+		this.files = this.option.params
 		this.getUserList()
+		if(this.files.length == 1)this.userFileList()//为单个文件授权时，查已授权用户
 	},
 	computed:{
 		...mapGetters(['getLevel']),
@@ -123,6 +126,9 @@ export default {
 					list:[{name:-1,showname:'全部'}]}
 			selectsetter.list = selectsetter.list.concat(this.getLevel)
 			return selectsetter
+		},
+		singleFile(){
+			return this.files.length == 1
 		}
 	},
 	watch:{
@@ -149,12 +155,43 @@ export default {
 		},
 		pageTo(num){
 			this.pageinfo.pageIndex = num
-			this.getAuthList()
+			this.getUserList()
 		},
 		getUserList(){
-			this.$http.post(window.apiUrl+"/file/userlist",{menuId:this.$route.query.menuId,pageSize:this.pageinfo.pageSize,pageNumber:this.pageinfo.pageIndex,name:this.userName}).then((res)=>{
-				this.datalist = res.data.list
-				this.pageinfo.total = res.data.total
+			const timeid = (new Date()).getTime()
+			const option = {
+				Dialog:LoadDialog,
+				timeid:timeid,
+				option:{
+					type:"loading",
+					text:"正在加载数据..."
+				}
+			}
+			this.showModal(option)
+			this.$http.post(window.apiUrl+"/file/userlist",{menuId:this.$route.query.menuId,pageSize:this.pageinfo.pageSize,pageNumber:this.pageinfo.pageIndex,userName:this.userName}).then((res)=>{
+				this.closeModal(timeid)
+				if(!res.data.code){
+					this.datalist = res.data.list
+					this.pageinfo.total = res.data.total
+				}else{
+					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
+				}
+				
+			},(error)=>{
+				this.closeModal(timeid)
+				Utils.errorModal(error,DialogModal,this.$store)
+			})
+		},
+		userFileList(){
+			const filesarr = this.getFileId().join(",")
+			this.$http.post(window.apiUrl+"/file/userfilelist",{fileids:filesarr,menuId:this.$route.query.menuId,pageSize:this.pageinfo.pageSize,pageNumber:this.pageinfo.pageIndex,userName:this.userName}).then((res)=>{
+				if(!res.data.code){
+					this.authoruser = res.data.list
+					this.pageinfo.total = res.data.total
+				}else{
+					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
+				}
+				
 			},(error)=>{
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
@@ -199,7 +236,7 @@ export default {
 						option:{
 							type:"error",
 							title:"提示",
-							content:item.file_name+(item.file_size > 30?"大小超过30M,":'')+(item.file_line > 100000?"记录条数超过十五条,":'')+"不能加水印！",
+							content:item.file_name+(item.file_size > 30?"大小超过30M,":'')+(item.file_line > 100000?"记录条数超过十万条,":'')+"不能加水印！",
 							ok:{
 								text:"知道了"
 							}
@@ -217,19 +254,35 @@ export default {
 			this.datalist.map((item)=>{
 				alluser.push(item)
 			})
-			checkallname = Array.from(new Set(alluser.concat(this.checkednames)))
+			if(this.checkedA){
+				checkallname = Utils.uniqueKey(alluser.concat(this.checkednames),"user_id")
+			}else{
+				let temp = this.checkednames
+				temp.forEach((v,i,a)=>{
+					if(alluser.indexOf(v) == -1)checkallname.push(v)
+				})
+				
+			}
 			this.checkednames = checkallname
 		},
-		saveAuth(){
-			if(!this.check())return
+		getFileId(){
 			const filesarr = []
-			const usersarr = []
 			this.files.forEach((item)=>{
 				filesarr.push(item.file_id)
 			})
+			return filesarr
+		},
+		getUserId(){
+			const usersarr = []
 			this.checkednames.forEach((item)=>{
 				usersarr.push(item.user_id)
 			})
+			return usersarr
+		},
+		saveAuth(){
+			if(!this.check())return
+			const filesarr = this.getFileId()
+			const usersarr = this.getUserId()
 			this.$http.post(window.apiUrl+"/file/fileauthorize",{fileids:filesarr,userids:usersarr,level:this.$refs.level.getData(),isZip:this.isscrect,isWarter:this.iswater}).then((res)=>{
 				if(!res.data.code){
 					this.closeHandler()

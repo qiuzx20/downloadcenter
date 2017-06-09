@@ -1,10 +1,10 @@
 <template>
 	<div class="pagetool">
 		<span class="first-page icon"  @click='jumpToFirst'></span>
-		<span v-for="(item,index) in pagelist" :class="index+1==pageIndex?'active page-no':'page-no'" @click="jumpTo(index+1)">{{index+1}}</span>
+		<span v-for="(item,index) in pagelist" v-show="showPage(index)" :class="index+1==pageIndex?'active page-no':'page-no'" @click="jumpTo(index+1)">{{index+1}}</span>
 		<span class="last-page icon" @click='jumpToLast'></span>
 		<span class="jump">跳转到第
-		<input type="number" v-model='pageIndex' class="page-index" @onKeyPress='inputKeyPress' lazy/>&nbsp;/&nbsp;
+		<input type="text" v-model='pageIndex' class="page-index" @onKeyPress='inputKeyPress' lazy/>&nbsp;/&nbsp;
 		<span>{{pages}}</span>页</span>
 		<span class="button" @click="okButton">确定</span>
 	</div>
@@ -16,9 +16,10 @@ export default {
 	data(){
 		return {
 			pagelist: [],
-			total: 0,
-			pageIndex: 1,
-			pages: 0
+			total: 0,//总数
+			pageIndex: 1,//当前页
+			pages: 0,//总页数
+			showNum:1//可显示的pagebtn前后个数，例如：当前是10页，显示10页前N页和后N页
 		}
 	},
 	props:['option'],
@@ -31,11 +32,19 @@ export default {
 		}
 	},
 	mounted(){
+		//最小为330px 最少显示3个BTN
+		const itemwidth = this.$el.childNodes[0].offsetWidth //单个BTN的宽度
+		const num = Math.floor(((this.$el.clientWidth - 350)/itemwidth)/2)
+		this.showNum = (num > 0) ? num : 1
 		this.calcParam(this.option)
 	},
 	methods:{
 		eventListener(type,num){
 			this.$emit(type,num)
+		},
+		showPage(index){
+			const pageIndex = Number(this.pageIndex)
+			return ((pageIndex + this.showNum) > index) && ((pageIndex - this.showNum - 2) < index)
 		},
 		okButton(){
 			if(this.pageIndex >this.pages ){
@@ -94,9 +103,9 @@ export default {
 				} else {
 					break;
 				}
-				if (prvnos.length == 8) {
+				/*if (prvnos.length == 8) {
 					break;
-				}
+				}*/
 			}
 
 			// 2. 往后计算页码
@@ -109,12 +118,12 @@ export default {
 				} else {
 					break;
 				}
-				if (tailnos.length == 8) {
+				/*if (tailnos.length == 8) {
 					break;
-				}
+				}*/
 			}
 
-			while (prvnos.length + tailnos.length > 8) {
+			/*while (prvnos.length + tailnos.length > 8) {
 				if (prvnos.length > 4) {
 					prvnos.shift();
 					continue;
@@ -124,7 +133,7 @@ export default {
 					tailnos.pop();
 					continue;
 				}
-			}
+			}*/
 			prvnos.push(pageIndex);
 			this.pagelist=prvnos.concat(tailnos)
 			this.total=total

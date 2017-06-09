@@ -1,9 +1,6 @@
 import * as type from './mutation-types'
 
 const mutations = {
-	[type.INCREMENT] (state) {
-	    state.count++
-	},
 	[type.SHOWMODAL] (state,option) {
 	 	state.modallist.push(option)
 	 },
@@ -19,10 +16,7 @@ const mutations = {
 	[type.CHOOSEMANAGER] (state,params) {
 		state.stagdata = params
 	 },
-	[type.ADDTOROLE](state,params){
-	 	state.stagdata = params
-	},
-	[type.SETUSER](state,params){
+	[type.SAVEUSER](state,params){
 		state.user = params
 	},
 	[type.CLEARUSER](state,params){

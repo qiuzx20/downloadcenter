@@ -1,17 +1,17 @@
 <template>
 	<div class="content-right">
-		<div class="topcrumb"><h3 class="title fl">{{isadd?"增加菜单":"编辑菜单"}}</h3><span class="fr"><a class="btn btn-green mr-10" v-show="!isadd" @click="addMenu">增加</a> <a class="btn btn-green" v-show="!isadd" @click="delMenu">删除</a></span></div>
+		<div class="topcrumb"><h3 class="title fl">{{isadd?"增加菜单":"编辑菜单"}}</h3><span class="fr"><a class="btn btn-green mr-10" v-show="!isadd && !leaf" @click="addMenu">增加</a> <a class="btn btn-green" v-show="!isadd" @click="delMenu">删除</a></span></div>
 		<div class="clearfix">
 			<ul class="ulform menu-u-top">
 				<Pubtext ref="parentid" :option="option1"></Pubtext>
-				<Pubtext ref="menuid" :option="option2"></Pubtext>
+				<Pubtext ref="menuid" :option="option2" @onTrigger="eventListener"></Pubtext>
 				<Pubtext ref="menuname" :option="option3"></Pubtext>
 				<Pubtext ref="managerref" :option="option4" @onTrigger="eventListener"></Pubtext>
 				<li class="clearfix">
 						<div class="name fl"><span class="red-text" v-if="option5 && option4.mustbe">*</span>{{option5 && option5.name}}：</div>
 						<div class="substance fl">
-							<label class="fl mr-10"><input type="radio" v-model="leaf" value="2">是</label>
-							<label class="fl"><input type="radio" v-model="leaf" value="0">否</label>
+							<label class="fl mr-10"><input type="radio" v-model="leaf" value="2" :disabled="leafdisble">是</label>
+							<label class="fl"><input type="radio" v-model="leaf" value="0" :disabled="leafdisble">否</label>
 						</div>
 						<div class="mark-tip clearboth">（备注:叶子节点对应FTP下载服务器的目录。）</div>
 
@@ -63,7 +63,7 @@ const option = {
 		tabindex:"",
 		placeholder:"请输入菜单编号",
 		unit:'',
-		errorText:'输入有误',
+		errorText:'菜单编号不能为空！',
 		tips:'请输入菜单编号'
 	},
 	option3:{
@@ -80,7 +80,7 @@ const option = {
 	option4:{
 		name:"管理员",
 		id:'manager',
-		mustbe:true,
+		mustbe:false,
 		type:"",
 		tabindex:"",
 		placeholder:"请选择管理员",
@@ -201,10 +201,17 @@ export default {
 			username:'',
 			passwd:'',
 			managerwatch:this.$store.state,
-			menuinfo:''
+			menuinfo:'',//菜单信息
+			childrenNum:0, //下级节点数
+			leafdisble:true, //叶子节点是否可编辑
+			isMenuIdUnique:false //true:重复 false:未重复
 		}
 	},
+	computed:{
+		...mapGetters(['getUserInfo']),
+	},
 	watch:{
+		//深度观察管理员数值变化
 		'managerwatch.stagdata':{
 			handler:function(val,oldval){
 				this.updateManager(val)
@@ -226,10 +233,15 @@ export default {
 		eventListener(type,params,obj){
 			switch(obj){
 				case "manager":
+					//选择管理员
 					if(type == "clickHandler" ){
 						this.chooseManager();
 					}
 					this.manager = params
+					break;
+				case "menuid":
+					//menuId验重
+					if(type == "blurHandler")this.menuIdUniqueCheck()
 					break;
 				default:
 			}
@@ -262,8 +274,11 @@ export default {
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
 		},
+		//增加菜单，初始化值
 		addMenu(){
 			this.isadd = true
+			this.leafdisble = false
+			this.$refs.menuid.$refs.pubtext.disabled = false
 			this.$refs.parentid.setData(this.$route.query.menuId)
 			this.$refs.menuid.setData()
 			this.$refs.menuname.setData()
@@ -279,6 +294,7 @@ export default {
 			this.saveMenu()
 
 		},
+		//点击菜单，设置data status值
 		setMenuVal(params){
 			this.parentmenuid = params.parentId
 			this.menuid = params.menuId
@@ -292,12 +308,37 @@ export default {
 			this.username = params.ftpUser
 			this.passwd = params.ftpPwd
 		},
+		menuIdUniqueCheck(){
+			this.$http.post(window.apiUrl+"/menu/menuCheck",{menuId:this.$refs.menuid.getData() || ''}).then((res)=>{
+				if(!res.data.code){
+					this.isMenuIdUnique = false
+				}else if(res.data.code == 2){
+					this.isMenuIdUnique = true
+					this.$refs.menuid.type = "error"
+					this.$refs.menuid.errorText = "该菜单id已存在！"
+				}else{
+					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
+				}
+			},(error)=>{
+				Utils.errorModal(error,DialogModal,this.$store)
+			})
+		},
+		//点击菜单，设置默认值
 		defaultVal(params){
 			this.$refs.parentid.setData(params.parentId)
 			params.parentId && (this.$refs.parentid.type = '')
+			//只有admin时才能修改parentid
+			if(this.getUserInfo.userName != 'admin'){
+				this.$refs.parentid.$refs.pubtext.disabled = true
+			}else{
+				this.$refs.parentid.$refs.pubtext.disabled = false
+			}
 
 			this.$refs.menuid.setData(params.menuId)
 			params.menuId && (this.$refs.menuid.type = '')
+			if(params.menuId && !this.isadd){
+				this.$refs.menuid.$refs.pubtext.disabled = true
+			}
 
 			this.$refs.menuname.setData(params.menuName)
 			params.menuName && (this.$refs.menuname.type = '')
@@ -306,6 +347,8 @@ export default {
 			params.manager && (this.$refs.managerref.type = '')
 
 			this.leaf = params.menuType || 0
+			this.isadd && (this.leafdisble = false)
+
 			this.$refs.remark.setData(params.menuDesc)
 
 			this.$refs.ftpurl.setData(params.ftpUrl)
@@ -326,7 +369,7 @@ export default {
 		checkForm(){
 			if(!this.$refs.menuid.getData()){
 				this.$refs.menuid.type = "error"
-				this.$refs.menuid.focus()
+				//this.$refs.menuid.focus()
 				return
 			}
 			if(Utils.isChineseChar(this.$refs.menuid.getData())){
@@ -335,16 +378,22 @@ export default {
 				this.$refs.menuid.focus()
 				return
 			}
+			if(this.isMenuIdUnique){
+				this.$refs.menuid.type = "error"
+				this.$refs.menuid.errorText = "该菜单id已存在！"
+				this.$refs.menuid.focus()
+				return
+			}
 			if(!this.$refs.menuname.getData()){
 				this.$refs.menuname.type = "error"
 				this.$refs.menuname.focus()
 				return
 			}
-			if(!this.$refs.managerref.getData()){
+			/*if(!this.$refs.managerref.getData()){
 				this.$refs.managerref.type = "error"
 				this.$refs.managerref.focus()
 				return
-			}
+			}*/
 			
 			if(this.leaf > 0){
 				if(!this.$refs.ftpurl.getData()){
@@ -405,7 +454,9 @@ export default {
 				}
 			}
 			this.showModal(option)
+			//更菜单时使用updateMenu接口
 			let saveurl = "/menu/updateMenu"
+			//增加菜单时使用addMenu接口
 			if(this.isadd){
 				saveurl = "/menu/addMenu"
 			}
@@ -435,6 +486,7 @@ export default {
 						ok:{
 							text:"知道了",
 							callback(){
+								//增加菜单时更新页面数据
 								if(that.isadd){
 									that.addTreeNodes()
 									that.defaultVal(that.menuinfo)
@@ -452,6 +504,24 @@ export default {
 			})
 		},
 		delMenu(){
+			//有下级菜单时不能删除
+			if(this.childrenNum > 0){
+					const timeidC = (new Date()).getTime()
+					const optionC = {
+						Dialog:DialogModal,
+						timeid:timeidC,
+						option:{
+							type:"error",
+							title:"提示",
+							content:"请先删除下级菜单！",
+							ok:{
+								text:"知道了"
+							}
+						}
+					}
+				this.showModal(optionC)
+				return
+			}
 			const timeid = (new Date()).getTime()
 			const option = {
 				Dialog:LoadDialog,
@@ -493,8 +563,10 @@ export default {
 			})
 		},
 		cancel(){
+			//刷新
 			this.$router.go(0)
 		},
+		//在树形菜单增加节点
 		addTreeNodes(){
 			this.$emit("onTrigger","addNodes",{parent_id:this.$refs.parentid.getData(),menu_id:this.$refs.menuid.getData(),menu_name:this.$refs.menuname.getData()})
 		},
@@ -510,6 +582,7 @@ export default {
 			}
 			this.showModal(option)
 		},
+		//更新管理员
 		updateManager(val){
 			this.manager = val.user_id
 			this.$refs.managerref.$refs.pubtext.setData(val.user_id)

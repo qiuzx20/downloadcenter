@@ -52,9 +52,8 @@ export default {
 				}else{
 					this.type = ""
 					this.errorText = ""
-					this.$emit("onTrigger",type,params,this.option.id)
 				}
-				
+				this.$emit("onTrigger",type,params,this.option.id)
 			}
 			if(type == "clickHandler" ){
 				this.$emit("onTrigger",type,params,this.option.id)

@@ -10,18 +10,18 @@
 		</div>
 		<div class="tablearea mt-10">
 			<table >
-			<thead><tr><th width="20%">文件编号</th><th width="12%">文件名</th><th width="12%">更新日期</th><th width="10%">大小（M）</th><th width="8%">记录条数</th><th width="8%">敏感级别</th><th width="8%">是否加水印</th><th width="10%">是否压缩加密</th><th width="12%">操作</th></tr></thead>
+			<thead><tr><th width="20%">文件编号</th><th width="12%">文件名</th><th width="12%">更新日期</th><th width="10%">大小（K）</th><th width="8%">记录条数</th><th width="8%">敏感级别</th><th width="8%">是否加水印</th><th width="10%">是否压缩加密</th><th width="12%">操作</th></tr></thead>
 			<tbody>
 				<tr v-for='item in datalist' :id="item.file_id">
 					<td width="20%">{{item.file_id}}</td>
 					<td width="12%" :title="item.file_name">{{item.file_name}}</td>
 					<td width="12%">{{item.update_time}}</td>
-					<td width="10%">{{item.file_size}}</td>
+					<td width="10%">{{formatNumberRgx(item.file_size)}}</td>
 					<td width="8%">{{item.file_line}}</td>
 					<td width="8%">{{item.sentive_level}}</td>
 					<td width="8%">{{item.is_warter?"是":"否"}}</td>
 					<td width="10%">{{item.is_zip?"是":"否"}}</td>
-					<td width="12%"><button class="btn btn-small btn-primary" @click="downloadfileHandler(item)" :disabled="item.file_status == 3">{{fileStatus(item.file_status)}}</button></td>
+					<td width="12%"><button class="btn btn-small btn-primary" @click="downloadfileHandler(item,$event)" :disabled="item.file_status == 3">{{fileStatus(item.file_status)}}</button></td>
 				</tr>
 			</tbody>
 			</table>
@@ -86,6 +86,9 @@ export default {
 		...mapActions(['showModal','closeModal']),
 		eventListener(params){
 		},
+		formatNumberRgx(num){
+			return Utils.formatNumberRgx(num)
+		},
 		fileStatus(status){
 			let result
 			switch(status){
@@ -148,9 +151,11 @@ export default {
 							})
 
 		},
-		createFile(fileid){
-			event.target.innerHTML="准备中..."
-			event.target.disabled=true
+		createFile(fileid,event){
+       		let e = event || window.event
+       		let ev = e.target
+			ev.innerHTML="准备中..."
+			ev.disabled=true
 			this.$http.post(window.apiUrl+"/file/createfile",{fileId:fileid}).then((res)=>{
 				if(!res.data.code){
 					const timeidA = (new Date()).getTime()
@@ -160,21 +165,19 @@ export default {
 						option:{
 							type:"ok",
 							title:"提示",
-							content:"准备成功！",
+							content:"文件开始准备中，请稍候...",
 							ok:{
 								text:"知道了"
 							}
 						}
 					}
 					this.showModal(optionA)
-					event.target.innerHTML="立即下载"
-					event.target.disabled=false
-				}else{
-					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
-					if(res.data.code == 2){
-						event.target.innerHTML="准备失败"
-						event.target.disabled=false
-					}
+					ev.innerHTML="下载文件"
+					ev.disabled=false
+				}else if(res.data.code == 2){
+						Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
+						ev.innerHTML="准备失败"
+						ev.disabled=false
 				}
 
 			},(error)=>{
@@ -199,7 +202,7 @@ export default {
 			}
 			this.showModal(option)
 		},
-		downloadfileHandler(item){
+		downloadfileHandler(item,event){
 			if(item.file_status == 1){
 				if(item.sentive_level < 3){
 					this.downloadFile(item.file_id)
@@ -208,7 +211,7 @@ export default {
 				}
 					
 			}else{
-				this.createFile(item.file_id)
+				this.createFile(item.file_id,event)
 			}
 			
 		}

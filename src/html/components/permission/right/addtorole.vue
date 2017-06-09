@@ -93,20 +93,19 @@ export default {
 			}
 			this.showModal(option)
 			this.$http.post(window.apiUrl+"/user/queryUserNotByRoleId",{roleId:this.$route.query.roleId,rows:this.pageinfo.pageSize,page:this.pageinfo.pageIndex,name:this.usecnname}).then((res)=>{
+				this.closeModal(timeid)
 				if(!res.data.code){
-					this.closeModal(timeid)
 					this.datalist = res.data.data.list
 					this.pageinfo.total = res.data.data.total
 				}else{
 					Utils.errorModal({statusText:res.data.msg,status:res.data.code},DialogModal,this.$store)
 				}
-				this.showModal(option)
 			},(error)=>{
 				this.closeModal(timeid)
 				Utils.errorModal(error,DialogModal,this.$store)
 			})
 		},
-		saveUser(){
+		saveRole(){
 			if(!this.checkednames.length){
 				const timeidA = (new Date()).getTime()
 				const optionA = {
@@ -168,13 +167,12 @@ export default {
 			})
 
 			if(this.checkedA){
-				checkallname = Array.from(new Set(alluser.concat(this.checkednames)))
+				checkallname = Utils.uniqueKey(alluser.concat(this.checkednames),"username")
 			}else{
 				let temp = this.checkednames
 				temp.forEach((v,i,a)=>{
-					if(alluser.indexOf(v) == -1){
-						checkallname.push(v)
-					}
+					if(alluser.indexOf(v) == -1)checkallname.push(v)
+					
 				})
 			}
 			this.checkednames = checkallname
@@ -183,7 +181,7 @@ export default {
 			this.closeModal(this.id)
 		},
 		okHandler(params){
-			this.saveUser()
+			this.saveRole()
 		}
 	},
 	components:{
